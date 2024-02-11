@@ -50,4 +50,5 @@ public class Regius {
         public static void onClientSetup(FMLClientSetupEvent event) {
         }
     }
+    //test
 }
