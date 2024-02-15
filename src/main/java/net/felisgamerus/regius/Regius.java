@@ -1,6 +1,9 @@
 package net.felisgamerus.regius;
 
 import com.mojang.logging.LogUtils;
+import net.felisgamerus.regius.block.ModBlocks;
+import net.felisgamerus.regius.item.ModCreativeModeTab;
+import net.felisgamerus.regius.item.ModItems;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,10 +28,14 @@ public class Regius {
     public Regius() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ModCreativeModeTab.register(modEventBus);
+
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+
         modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
-
         modEventBus.addListener(this::addCreative);
     }
 
@@ -50,5 +57,4 @@ public class Regius {
         public static void onClientSetup(FMLClientSetupEvent event) {
         }
     }
-    //test
 }
