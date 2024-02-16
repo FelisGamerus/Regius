@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "regius:block/dried_sphagnum_moss_block"
+  }
+}
