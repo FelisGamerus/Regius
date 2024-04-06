@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "regius:block/dried_sphagnum_moss"
+      },
+      {
+        "model": "regius:block/dried_sphagnum_moss",
+        "y": 90
+      },
+      {
+        "model": "regius:block/dried_sphagnum_moss",
+        "y": 180
+      },
+      {
+        "model": "regius:block/dried_sphagnum_moss",
+        "y": 270
+      }
+    ]
+  }
+}

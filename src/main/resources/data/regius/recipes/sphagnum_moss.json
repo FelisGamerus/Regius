@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "regius:sphagnum_moss_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "regius:sphagnum_moss"
+  }
+}

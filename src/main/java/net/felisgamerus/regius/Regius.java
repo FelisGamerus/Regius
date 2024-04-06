@@ -4,6 +4,8 @@ import com.mojang.logging.LogUtils;
 import net.felisgamerus.regius.block.ModBlocks;
 import net.felisgamerus.regius.item.ModCreativeModeTab;
 import net.felisgamerus.regius.item.ModItems;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,7 +42,8 @@ public class Regius {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.DRIED_SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

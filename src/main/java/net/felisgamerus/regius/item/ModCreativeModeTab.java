@@ -18,6 +18,8 @@ public class ModCreativeModeTab {
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.SPHAGNUM_MOSS_BLOCK.get()))
                     .title(Component.translatable("creativetab.regius_tab"))
                     .displayItems((pParameters, pOutput) -> {
+                        pOutput.accept(ModBlocks.SPHAGNUM_MOSS.get());
+                        pOutput.accept(ModBlocks.DRIED_SPHAGNUM_MOSS.get());
                         pOutput.accept(ModBlocks.SPHAGNUM_MOSS_BLOCK.get());
                         pOutput.accept(ModBlocks.DRIED_SPHAGNUM_MOSS_BLOCK.get());
                     })

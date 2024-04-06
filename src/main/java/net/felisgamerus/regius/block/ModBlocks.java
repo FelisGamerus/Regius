@@ -19,11 +19,16 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, Regius.MOD_ID);
 
+    public static final RegistryObject<Block> SPHAGNUM_MOSS = registerBlock("sphagnum_moss",
+            () -> new SphagnumPlant(BlockBehaviour.Properties.copy(Blocks.STONE).sound(SoundType.WET_GRASS).noOcclusion().noCollission()));
+    public static final RegistryObject<Block> DRIED_SPHAGNUM_MOSS = registerBlock("dried_sphagnum_moss",
+            () -> new DriedSphagnumPlant(BlockBehaviour.Properties.copy(Blocks.STONE).sound(SoundType.GRASS).noOcclusion().noCollission()));
+
     public static final RegistryObject<Block> SPHAGNUM_MOSS_BLOCK = registerBlock("sphagnum_moss_block",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.MOSS_BLOCK).sound(SoundType.WET_GRASS)));
-    //Gonna need a separate SpongeBlock-like class for dried moss later
+    //Gonna need a separate ConcretePowderBlock-like class for each dried moss later
     public static final RegistryObject<Block> DRIED_SPHAGNUM_MOSS_BLOCK = registerBlock("dried_sphagnum_moss_block",
-            () -> new Block(BlockBehaviour.Properties.copy(Blocks.MOSS_BLOCK).sound(SoundType.GRASS)));
+            () -> new DriedSphagnumMossBlock(BlockBehaviour.Properties.copy(Blocks.MOSS_BLOCK).sound(SoundType.GRASS)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
