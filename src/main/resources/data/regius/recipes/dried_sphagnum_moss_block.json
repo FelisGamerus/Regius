@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "regius",
+  "category": "building",
   "key": {
     "#": {
       "item": "regius:dried_sphagnum_moss"
