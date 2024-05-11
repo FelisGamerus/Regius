@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -20,15 +21,15 @@ public class ModBlocks {
             DeferredRegister.create(ForgeRegistries.BLOCKS, Regius.MOD_ID);
 
     public static final RegistryObject<Block> SPHAGNUM_MOSS = registerBlock("sphagnum_moss",
-            () -> new SphagnumPlant(BlockBehaviour.Properties.copy(Blocks.STONE).sound(SoundType.WET_GRASS).noOcclusion().noCollission()));
+            () -> new SphagnumPlant(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GREEN).sound(SoundType.WET_GRASS).strength(0.1F).noOcclusion().noCollission()));
     public static final RegistryObject<Block> DRIED_SPHAGNUM_MOSS = registerBlock("dried_sphagnum_moss",
-            () -> new DriedSphagnumPlant(BlockBehaviour.Properties.copy(Blocks.STONE).sound(SoundType.GRASS).noOcclusion().noCollission()));
+            () -> new DriedSphagnumPlant(SPHAGNUM_MOSS, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_YELLOW).sound(SoundType.GRASS).strength(0.1F).noOcclusion().noCollission()));
 
     public static final RegistryObject<Block> SPHAGNUM_MOSS_BLOCK = registerBlock("sphagnum_moss_block",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.MOSS_BLOCK).sound(SoundType.WET_GRASS)));
     //Gonna need a separate ConcretePowderBlock-like class for each dried moss later
     public static final RegistryObject<Block> DRIED_SPHAGNUM_MOSS_BLOCK = registerBlock("dried_sphagnum_moss_block",
-            () -> new DriedSphagnumMossBlock(BlockBehaviour.Properties.copy(Blocks.MOSS_BLOCK).sound(SoundType.GRASS)));
+            () -> new DriedSphagnumMossBlock(SPHAGNUM_MOSS_BLOCK, BlockBehaviour.Properties.copy(Blocks.MOSS_BLOCK).mapColor(MapColor.COLOR_YELLOW).sound(SoundType.GRASS)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
