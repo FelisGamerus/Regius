@@ -2,20 +2,27 @@ package net.felisgamerus.regius.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.registries.RegistryObject;
 
 //This might be needed depending on what I do with SphagnumPlant
-public class DriedSphagnumPlant extends Block {
-    public DriedSphagnumPlant(Properties properties) {
-        super(properties);
+public class DriedSphagnumPlant extends DriedSphagnumBase {
+    public DriedSphagnumPlant(RegistryObject<Block> lushPlant, BlockBehaviour.Properties properties) {
+        super(lushPlant, properties);
+    }
+
+    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
+        return canSupportRigidBlock(pLevel, pPos.below());
     }
 
     private static final VoxelShape SHAPE = box(0, 0, 0, 16, 5, 16);
-
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return SHAPE;
     }
@@ -24,4 +31,5 @@ public class DriedSphagnumPlant extends Block {
     public boolean skipRendering(BlockState pState, BlockState pAdjacentBlockState, Direction pSide) {
         return pAdjacentBlockState.is(this) ? true : super.skipRendering(pState, pAdjacentBlockState, pSide);
     }
+
 }
