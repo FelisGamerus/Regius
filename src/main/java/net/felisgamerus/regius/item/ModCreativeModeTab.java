@@ -1,7 +1,6 @@
 package net.felisgamerus.regius.item;
 
 import net.felisgamerus.regius.Regius;
-import net.felisgamerus.regius.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -20,8 +19,12 @@ public class ModCreativeModeTab {
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.SPHAGNUM_MOSS.get());
                         pOutput.accept(ModItems.DRIED_SPHAGNUM_MOSS.get());
+
                         pOutput.accept(ModItems.SPHAGNUM_MOSS_BLOCK.get());
                         pOutput.accept(ModItems.DRIED_SPHAGNUM_MOSS_BLOCK.get());
+
+                        pOutput.accept(ModItems.HOLLOW_STRIPPED_OAK_LOG.get());
+                        pOutput.accept(ModItems.HOLLOW_OAK_LOG.get());
                     })
                     .build());
 
