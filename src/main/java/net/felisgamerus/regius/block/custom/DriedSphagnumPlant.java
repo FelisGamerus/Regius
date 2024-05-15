@@ -1,8 +1,7 @@
-package net.felisgamerus.regius.block;
+package net.felisgamerus.regius.block.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -12,7 +11,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.registries.RegistryObject;
 
-//This might be needed depending on what I do with SphagnumPlant
 public class DriedSphagnumPlant extends DriedSphagnumBase {
     public DriedSphagnumPlant(RegistryObject<Block> lushPlant, BlockBehaviour.Properties properties) {
         super(lushPlant, properties);

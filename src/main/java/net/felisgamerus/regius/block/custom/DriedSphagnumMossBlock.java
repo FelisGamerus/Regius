@@ -1,4 +1,4 @@
-package net.felisgamerus.regius.block;
+package net.felisgamerus.regius.block.custom;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;

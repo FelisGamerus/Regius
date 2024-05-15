@@ -1,4 +1,4 @@
-package net.felisgamerus.regius.block;
+package net.felisgamerus.regius.block.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,9 +17,9 @@ public class DriedSphagnumBase extends Block {
     //Some methods copied from ConcretePowederBlock, used to hydrate the plant
     private final BlockState lushPlant;
 
-    public DriedSphagnumBase(RegistryObject<Block> pLushPlant, BlockBehaviour.Properties pProperties) {
+    public DriedSphagnumBase(RegistryObject<Block> lushPlant, BlockBehaviour.Properties pProperties) {
         super(pProperties);
-        this.lushPlant = pLushPlant.get().defaultBlockState();
+        this.lushPlant = lushPlant.get().defaultBlockState();
     }
 
     public void onLand(Level pLevel, BlockPos pPos, BlockState pState, BlockState pReplaceableState, FallingBlockEntity pFallingBlock) {
