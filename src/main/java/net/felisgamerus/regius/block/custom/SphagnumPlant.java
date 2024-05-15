@@ -1,4 +1,4 @@
-package net.felisgamerus.regius.block;
+package net.felisgamerus.regius.block.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
