@@ -7,6 +7,7 @@ import net.felisgamerus.regius.item.ModItems;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -44,6 +45,14 @@ public class Regius {
     private void commonSetup(final FMLCommonSetupEvent event) {
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.DRIED_SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
+        registerCompostables();
+    }
+
+    public static void registerCompostables() {
+        ComposterBlock.COMPOSTABLES.put(ModItems.SPHAGNUM_MOSS.get(), 0.65F);
+        ComposterBlock.COMPOSTABLES.put(ModItems.DRIED_SPHAGNUM_MOSS.get(), 0.65F);
+        ComposterBlock.COMPOSTABLES.put(ModItems.SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
+        ComposterBlock.COMPOSTABLES.put(ModItems.DRIED_SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
