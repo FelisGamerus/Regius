@@ -2,9 +2,11 @@ package net.felisgamerus.regius.item;
 
 import net.felisgamerus.regius.Regius;
 import net.felisgamerus.regius.block.ModBlocks;
+import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.item.custom.FuelBlockItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -13,6 +15,10 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, Regius.MOD_ID);
+
+    //Misc
+    public static final RegistryObject<Item> BALL_PYTHON_SPAWN_EGG = ITEMS.register("ball_python_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.BALL_PYTHON, 0x5c3b23, 0xbd9a5b, new Item.Properties()));
 
     //Sphagnum plants
     public static final RegistryObject<Item> SPHAGNUM_MOSS = ITEMS.register("sphagnum_moss",
