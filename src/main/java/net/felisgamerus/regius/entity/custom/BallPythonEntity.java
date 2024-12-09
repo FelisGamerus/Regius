@@ -1,5 +1,6 @@
 package net.felisgamerus.regius.entity.custom;
 
+import net.felisgamerus.regius.entity.ModEntities;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -44,7 +45,6 @@ public class BallPythonEntity extends Animal implements GeoEntity {
 
     public final BallPythonEntityPart[] ballPythonParts;
     public final int MULTIPART_COUNT = 2;
-    //public final float[] buffer = new float[3]; <-- Useless? Not called anywhere.
     public int ringBufferIndex = -1;
     public final double[][] ringBuffer = new double[64][3];
 
@@ -82,6 +82,11 @@ public class BallPythonEntity extends Animal implements GeoEntity {
         return true;
     }
 
+    @Override
+    public float getScale() {
+        return 1.0f; //Because babies being half-scale messes the hitboxes up
+    }
+
     protected PathNavigation createNavigation(Level pLevel) {
         return new AmphibiousPathNavigation(this, pLevel);
     }
@@ -89,9 +94,11 @@ public class BallPythonEntity extends Animal implements GeoEntity {
     //Goals and attributes
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new MeleeAttackGoal(this, (double)1.2F, false));
-        this.goalSelector.addGoal(1, new WaterAvoidingRandomStrollGoal(this, 1.1D));
-        this.goalSelector.addGoal(2, new RandomSwimmingGoal(this, 1.0D, 10));
+        this.goalSelector.addGoal(0, new BreedGoal(this, 1.2D));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
+        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.1D));
+        this.goalSelector.addGoal(3, new RandomSwimmingGoal(this, 1.0D, 10));
+
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
     }
@@ -100,8 +107,8 @@ public class BallPythonEntity extends Animal implements GeoEntity {
         return Animal.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 10D)
                 .add(Attributes.MOVEMENT_SPEED, 0.151D)
-                .add(Attributes.FOLLOW_RANGE, 24f)
-                .add(Attributes.ATTACK_DAMAGE, 4.0D) //Change attack-related attributes once constriction is implemented(
+                .add(Attributes.FOLLOW_RANGE, 5f)
+                .add(Attributes.ATTACK_DAMAGE, 4.0D) //Change attack-related attributes once constriction is implemented
                 .add(Attributes.ATTACK_KNOCKBACK, 0.0D)
                 .add(Attributes.ATTACK_SPEED, 4.0D);
     }
@@ -118,17 +125,23 @@ public class BallPythonEntity extends Animal implements GeoEntity {
 
     }
 
+    //Breeding
+    @Override
+    public boolean isFood(ItemStack pStack) {
+        return pStack.is(Items.RABBIT);
+    }
+
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
-        return null;
+        return ModEntities.BALL_PYTHON.get().create(pLevel);
     }
 
     //Testing for interactions w/ multiparts
     public InteractionResult mobInteract (Player pPlayer, InteractionHand pHand) {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
         if (itemstack.getItem() == Items.STICK) {
-            System.out.println("Stick interaction successful");
+            System.out.println("Stick interaction successful by " + pPlayer.toString() + " at " + System.currentTimeMillis());
             this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.PARROT_EAT, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
 
             return InteractionResult.sidedSuccess(this.level().isClientSide);
@@ -152,24 +165,22 @@ public class BallPythonEntity extends Animal implements GeoEntity {
     }
 
     public boolean attackEntityPartFrom(BallPythonEntityPart ballPythonPart, DamageSource source, float amount) {
-        System.out.println("Parent hurt");
+        //System.out.println("Parent hurt from child by " + source.toString() + " for " + amount + " at " + System.currentTimeMillis());
         return this.hurt(source, amount);
     }
 
-    private void setPartPosition(BallPythonEntityPart part, double offsetX, double offsetY, double offsetZ) {
-        part.setPos(this.getX() + offsetX * part.scale, this.getY() + offsetY * part.scale, this.getZ() + offsetZ * part.scale);
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount) {
+        //System.out.println("Ball python hurt by " + pSource.toString() + " for " + pAmount + " at " + System.currentTimeMillis());
+        return super.hurt(pSource, pAmount);
     }
 
-    /*public int getMultiparts() {
-        return 2;
-    }*/
+    private void setPartPosition(BallPythonEntityPart part, double offsetX, double offsetY, double offsetZ) {
+        part.setPos(this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ);
+    }
 
-    /*
-    The child in front of the parent is made first. Further children are behind the parent, and are flush with each other.
-    Movement also grows more dramatic as # of children increase -- parented from 1st child?
-     */
     public void aiStep() {
-        if (!this.isNoAi() && !this.isBaby()) {
+        if (!this.isNoAi()) {
             if (!isSleeping()) {
                 if (this.ringBufferIndex < 0) {
                     for (int i = 0; i < this.ringBuffer.length; ++i) {
@@ -189,25 +200,20 @@ public class BallPythonEntity extends Animal implements GeoEntity {
                     this.ballPythonParts[j].collideWithNearbyEntities();
                     multipartVectorArray[j] = new Vector3d(this.ballPythonParts[j].getX(), this.ballPythonParts[j].getY(), this.ballPythonParts[j].getZ());
                 }
-                float f15 = (float) (this.getMovementOffsets(5, 1.0F)[1] - this.getMovementOffsets(10, 1.0F)[1]) * 10.0F * ((float) Math.PI / 180F);
-                float f16 = Mth.cos(f15); //Making this negative reverses hitbox order
+                float f15 = (float) (this.getMovementOffsets(5)[1] - this.getMovementOffsets(10)[1]) * 10.0F * ((float) Math.PI / 180F);
+                float f16 = Mth.cos(f15);
                 float yaw = this.getYRot() * ((float) Math.PI / 180F);
-                float pitch = 0; // this.getXRot() * ((float) Math.PI / 180F);  <-- Anything that mentions getXRot() is not important -- affects up-down movement
-                float f3 = Mth.sin(yaw); // * (1 - Math.abs(this.getXRot() / 90F));
-                float f18 = Mth.cos(yaw); // * (1 - Math.abs(this.getXRot() / 90F));
-
-                double[] multipartDoubleArray0 = this.getMovementOffsets(5, 1.0F);
+                float f3 = Mth.sin(yaw);
+                float f18 = Mth.cos(yaw);
 
                 for (int k = 0; k < this.MULTIPART_COUNT; ++k) {
                     BallPythonEntityPart ball_python_part = this.ballPythonParts[k];
 
-                    double[] multipartDoubleArray1 = this.getMovementOffsets(5 + k * 2, 1.0F);  //Responsible for tail waggle -- remove " + k * 2" to fix
-                    float f7 = yaw; // + (float) Mth.wrapDegrees(multipartDoubleArray1[0] - multipartDoubleArray0[0]) * ((float) Math.PI / 180F);   //Also responsible for tail waggle -- keep as just yaw to fix
-                    float f20 = Mth.sin(f7); // * (1 - Math.abs(this.getXRot() / 90F));
-                    float f21 = Mth.cos(f7); // * (1 - Math.abs(this.getXRot() / 90F));
-                    float f23 = /*k == 0 ? (float) (k + 0) :*/ (k + 1) * -1;    //Controls hitbox order
-                    float value = pitch * (k); //<-- equal to 0
-                    this.setPartPosition(ball_python_part, -(f3 * 0.0F + f20 * f23) * f16, value, (f18 * 0.0F + f21 * f23) * f16);  //Numbers after f3 and f18 control how far children are from parent -- 0.0 is flush, 1.0 is inside parent, pos. numbers move towards front and neg. towards back
+                    float f7 = yaw;
+                    float f20 = Mth.sin(f7);
+                    float f21 = Mth.cos(f7);
+                    float f23 = (k + 1f) * -1; //Controls hitbox order
+                    this.setPartPosition(ball_python_part, -(f3 * 0.0F + f20 * f23) * f16, 0, (f18 * 0.0F + f21 * f23) * f16); //Numbers after f3 and f18 control how far children are from parent -- 0.0 is flush, 1.0 is inside parent, pos. numbers move towards front and neg. towards back
 
                     this.ballPythonParts[k].xo = multipartVectorArray[k].x;
                     this.ballPythonParts[k].yo = multipartVectorArray[k].y;
@@ -233,22 +239,14 @@ public class BallPythonEntity extends Animal implements GeoEntity {
         super.aiStep();
     }
 
-    //Should check later for fixing hitboxes
-    public double[] getMovementOffsets(int p_70974_1_, float partialTicks) {
-        if (this.isDeadOrDying()) {
-            partialTicks = 0.0F;
-        }
-        partialTicks = 0; // 1.0F - partialTicks;   //Every time gMO is called partialTicks is 1 and therefore becomes 0, what's the point of this?
+    public double[] getMovementOffsets(int p_70974_1_) {
         int i = this.ringBufferIndex - p_70974_1_ & 63;
         int j = this.ringBufferIndex - p_70974_1_ - 1 & 63;
         double[] offsetDoubleArray = new double[3];
-        double d0 = this.ringBuffer[i][0];  //YRot
-        //double d1 = this.ringBuffer[j][0] - d0;   //If partialTicks is 0, does d1 matter either?
-        offsetDoubleArray[0] = d0; // + d1 * (double) partialTicks;
+        double d0 = this.ringBuffer[i][0];
+        offsetDoubleArray[0] = d0;
         d0 = this.ringBuffer[i][1];
-        //d1 = this.ringBuffer[j][1] - d0;
-        offsetDoubleArray[1] = d0; // + d1 * (double) partialTicks;
-        offsetDoubleArray[2] = Mth.lerp(partialTicks, this.ringBuffer[i][2], this.ringBuffer[j][2]);
+        offsetDoubleArray[1] = d0;
         return offsetDoubleArray;
     }
 
