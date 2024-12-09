@@ -24,8 +24,8 @@ public class ModCreativeModeTab {
                         pOutput.accept(ModItems.SPHAGNUM_MOSS_BLOCK.get());
                         pOutput.accept(ModItems.DRIED_SPHAGNUM_MOSS_BLOCK.get());
 
-                        pOutput.accept(ModItems.HOLLOW_STRIPPED_OAK_LOG.get());
                         pOutput.accept(ModItems.HOLLOW_OAK_LOG.get());
+                        pOutput.accept(ModItems.HOLLOW_STRIPPED_OAK_LOG.get());
 
                         pOutput.accept(ModItems.BALL_PYTHON_SPAWN_EGG.get());
                     })
