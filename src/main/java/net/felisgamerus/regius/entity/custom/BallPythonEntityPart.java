@@ -9,17 +9,19 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.entity.PartEntity;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
+//Mostly copied from Untamed Wilds
 public class BallPythonEntityPart extends PartEntity<BallPythonEntity> {
 
     private final EntityDimensions size;
 
-    public BallPythonEntityPart(BallPythonEntity parent, float sizeX, float sizeY) {
-        super(parent);
+    public BallPythonEntityPart(BallPythonEntity pParent, float sizeX, float sizeY) {
+        super(pParent);
         this.size = EntityDimensions.scalable(sizeX, sizeY);
         this.refreshDimensions();
     }
@@ -34,7 +36,10 @@ public class BallPythonEntityPart extends PartEntity<BallPythonEntity> {
     @Override
     public InteractionResult interact(Player pPlayer, InteractionHand pHand) {
         //System.out.println("Passing interaction by " + pPlayer.toString() + " using " + pHand.toString() + " at " + System.currentTimeMillis() + "to parent...");
-        return this.getParent().mobInteract(pPlayer, pHand);
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        if (itemstack.getItem() == Items.BUCKET) {
+            return InteractionResult.PASS; //BPEntityParts can be bucketed, but create nothing when the resulting ball python bucket is used. Temporary until I can work out a fix
+        } else return this.getParent().mobInteract(pPlayer, pHand);
     }
 
     @Override

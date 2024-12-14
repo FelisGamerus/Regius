@@ -1,7 +1,14 @@
 package net.felisgamerus.regius.entity.custom;
 
 import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.item.ModItems;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -19,10 +26,12 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -39,14 +48,17 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import software.bernie.geckolib.core.animation.AnimationState;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
-public class BallPythonEntity extends Animal implements GeoEntity {
+public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
 
     public final BallPythonEntityPart[] ballPythonParts;
     public final int MULTIPART_COUNT = 2;
     public int ringBufferIndex = -1;
     public final double[][] ringBuffer = new double[64][3];
+
+    private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -66,6 +78,18 @@ public class BallPythonEntity extends Animal implements GeoEntity {
         }
     }
 
+    @Override
+    public void addAdditionalSaveData(CompoundTag pCompound) {
+        super.addAdditionalSaveData(pCompound);
+        pCompound.putBoolean("FromBucket", this.fromBucket());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
+        this.setFromBucket(pCompound.getBoolean("FromBucket"));
+    }
+
     //Declarations and stuff
     public boolean canBreatheUnderwater() {
         return true;
@@ -73,13 +97,18 @@ public class BallPythonEntity extends Animal implements GeoEntity {
     public boolean isPushedByFluid() {
         return false;
     }
+    protected PathNavigation createNavigation(Level pLevel) {
+        return new AmphibiousPathNavigation(this, pLevel);
+    }
 
     public boolean canBeLeashed(Player pPlayer) {
         return true;
     }
-
     public boolean isPickable() {
         return true;
+    }
+    public boolean requiresCustomPersistence() {
+        return super.requiresCustomPersistence() || this.fromBucket();
     }
 
     @Override
@@ -87,8 +116,46 @@ public class BallPythonEntity extends Animal implements GeoEntity {
         return 1.0f; //Because babies being half-scale messes the hitboxes up
     }
 
-    protected PathNavigation createNavigation(Level pLevel) {
-        return new AmphibiousPathNavigation(this, pLevel);
+    //Buckets
+    @Override
+    public boolean fromBucket() {
+        return this.entityData.get(FROM_BUCKET);
+    }
+
+    @Override
+    public void setFromBucket(boolean pFromBucket) {
+        this.entityData.set(FROM_BUCKET, pFromBucket);
+    }
+
+    @Override
+    public void saveToBucketTag(ItemStack pStack) {
+        Bucketable.saveDefaultDataToBucketTag(this, pStack);
+        CompoundTag compoundtag = pStack.getOrCreateTag();
+        compoundtag.putInt("Age", this.getAge());
+    }
+
+    @Override
+    public void loadFromBucketTag(CompoundTag pTag) {
+        Bucketable.loadDefaultDataFromBucketTag(this, pTag);
+        if (pTag.contains("Age")) {
+            this.setAge(pTag.getInt("Age"));
+        }
+    }
+
+    @Override
+    public ItemStack getBucketItemStack() {
+        return new ItemStack(ModItems.BALL_PYTHON_BUCKET.get());
+    }
+
+    @Override
+    public SoundEvent getPickupSound() {
+        return SoundEvents.BUCKET_FILL_AXOLOTL;
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(FROM_BUCKET, false);
     }
 
     //Goals and attributes
@@ -137,18 +204,28 @@ public class BallPythonEntity extends Animal implements GeoEntity {
         return ModEntities.BALL_PYTHON.get().create(pLevel);
     }
 
-    //Testing for interactions w/ multiparts
+    //Interactions
     public InteractionResult mobInteract (Player pPlayer, InteractionHand pHand) {
+        return this.bucketMobPickup(pPlayer, pHand, this).orElse(super.mobInteract(pPlayer, pHand));
+    }
+
+    static <T extends LivingEntity & Bucketable> Optional<InteractionResult> bucketMobPickup(Player pPlayer, InteractionHand pHand, T pEntity) {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
-        if (itemstack.getItem() == Items.STICK) {
-            System.out.println("Stick interaction successful by " + pPlayer.toString() + " at " + System.currentTimeMillis());
-            this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.PARROT_EAT, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
+        if (itemstack.getItem() == Items.BUCKET && pEntity.isAlive()) {
+            pEntity.playSound(pEntity.getPickupSound(), 1.0F, 1.0F);
+            ItemStack itemstack1 = pEntity.getBucketItemStack();
+            pEntity.saveToBucketTag(itemstack1);
+            ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, pPlayer, itemstack1, false);
+            pPlayer.setItemInHand(pHand, itemstack2);
+            Level level = pEntity.level();
+            if (!level.isClientSide) {
+                CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)pPlayer, itemstack1);
+            }
 
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
-        }
-
-        else {
-            return super.mobInteract(pPlayer, pHand);
+            pEntity.discard();
+            return Optional.of(InteractionResult.sidedSuccess(level.isClientSide));
+        } else {
+            return Optional.empty();
         }
     }
 

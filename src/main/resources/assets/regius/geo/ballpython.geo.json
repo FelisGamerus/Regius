@@ -12,13 +12,8 @@
 			},
 			"bones": [
 				{
-					"name": "pivotPoint",
-					"pivot": [0, 0, 18]
-				},
-				{
 					"name": "head",
-					"parent": "pivotPoint",
-					"pivot": [0, 1.5, -4.5],
+					"pivot": [0, 1.5, 3.5],
 					"cubes": [
 						{"origin": [-2, 0, -1.5], "size": [4, 3, 5], "inflate": 0.01, "uv": [0, 0]},
 						{"origin": [-1.5, 0, -4.5], "size": [3, 3, 3], "uv": [0, 9]}

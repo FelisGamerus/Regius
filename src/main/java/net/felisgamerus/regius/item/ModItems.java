@@ -3,14 +3,22 @@ package net.felisgamerus.regius.item;
 import net.felisgamerus.regius.Regius;
 import net.felisgamerus.regius.block.ModBlocks;
 import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.entity.custom.BallPythonEntity;
 import net.felisgamerus.regius.item.custom.FuelBlockItem;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.checkerframework.common.returnsreceiver.qual.This;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
@@ -19,6 +27,12 @@ public class ModItems {
     //Misc
     public static final RegistryObject<Item> BALL_PYTHON_SPAWN_EGG = ITEMS.register("ball_python_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.BALL_PYTHON, 0x5c3b23, 0xbd9a5b, new Item.Properties()));
+    public static final RegistryObject<Item> BALL_PYTHON_BUCKET = ITEMS.register("ball_python_bucket",
+            () -> new BallPythonBucketItem(() -> ModEntities.BALL_PYTHON.get(),() -> Fluids.EMPTY,() -> SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1)));
+
+    /*public static final RegistryObject<Item> BALL_PYTHON_BUCKET = ITEMS.register("ball_python_bucket",
+            () -> new MobBucketItem(ModEntities.BALL_PYTHON.get(), Fluids.WATER, SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1)));
+    */ //This is broken and idk why
 
     //Sphagnum plants
     public static final RegistryObject<Item> SPHAGNUM_MOSS = ITEMS.register("sphagnum_moss",
