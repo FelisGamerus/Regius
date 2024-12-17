@@ -1,6 +1,7 @@
 package net.felisgamerus.regius.entity.custom;
 
 import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.nbt.CompoundTag;
@@ -25,10 +26,7 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Bucketable;
-import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -48,6 +46,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import software.bernie.geckolib.core.animation.AnimationState;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -58,39 +59,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     public int ringBufferIndex = -1;
     public final double[][] ringBuffer = new double[64][3];
 
-    private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
+    LocusMap genes = new LocusMap();
+    ArrayList<String> LOCI_REFERENCE = genes.getLociArray();
 
-    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
-
-    protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.ballpython.idle");
-    protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.ballpython.walk");
-    protected static final RawAnimation TONGUE = RawAnimation.begin().thenPlay("animation.ballpython.tongue");
-
-    public BallPythonEntity(EntityType<? extends Animal> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-        this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1.0F, 1.0F, false);
-        //this.lookControl = new SmoothSwimmingLookControl(this, 20); <- Doesn't seem to be working. Something to do with no head?
-        this.setMaxUpStep(1.0F);
-        this.ballPythonParts = new BallPythonEntityPart[this.MULTIPART_COUNT];
-        for (int i = 0; i < this.MULTIPART_COUNT; i++) {
-            this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
-        }
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-        pCompound.putBoolean("FromBucket", this.fromBucket());
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        this.setFromBucket(pCompound.getBoolean("FromBucket"));
-    }
-
-    //Declarations and stuff
     public boolean canBreatheUnderwater() {
         return true;
     }
@@ -111,12 +82,159 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         return super.requiresCustomPersistence() || this.fromBucket();
     }
 
+    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+
+    protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.ballpython.idle");
+    protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.ballpython.walk");
+    protected static final RawAnimation TONGUE = RawAnimation.begin().thenPlay("animation.ballpython.tongue");
+
     @Override
     public float getScale() {
         return 1.0f; //Because babies being half-scale messes the hitboxes up
     }
 
-    //Buckets
+    public BallPythonEntity(EntityType<? extends Animal> pEntityType, Level pLevel) {
+        super(pEntityType, pLevel);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+        this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1.0F, 1.0F, false);
+        this.setMaxUpStep(1.0F);
+        this.ballPythonParts = new BallPythonEntityPart[this.MULTIPART_COUNT];
+        for (int i = 0; i < this.MULTIPART_COUNT; i++) {
+            this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
+        }
+        /*System.out.println("CONSTRUCTOR START: visible phenotype is " + this.getVisiblePhenotype());
+        if (Math.random() < 0.5) {this.setGenotype("albino");} else {this.setGenotype("normal");}
+        System.out.println("CONSTRUCTOR END: visible phenotype is " + this.getVisiblePhenotype());*/
+    }
+
+    //DATA
+    //Thanks to Wyrmroost for helping me figure out string-based variants
+    private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
+
+    //TODO: Figure out why the genes aren't saving properly
+    /*Known broken things:
+        NBT tags - Not properly saving the genotype to the LocusMap
+        Breeder - Not actually getting a gene from pOtherParent/parent1 (So albino x albino = het albino)
+        getPhenotype doesn't actually send the phenotype to BallPythonModel while getVisiblePhenotype does for some reason
+     */
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(FROM_BUCKET, false);
+        this.entityData.define(GENOTYPE, "albino");
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag pCompound) {
+        super.addAdditionalSaveData(pCompound);
+        pCompound.putBoolean("FromBucket", this.fromBucket());
+        pCompound.putString("Genotype", "albino");
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
+        this.setFromBucket(pCompound.getBoolean("FromBucket"));
+        this.setGenotype("albino");
+    }
+
+    //SOUNDS
+    //Ocelot sounds are temp until snake sounds can be found
+    @Nullable @Override protected SoundEvent getAmbientSound() {return SoundEvents.OCELOT_AMBIENT;}
+    @Nullable @Override protected SoundEvent getHurtSound(DamageSource pDamageSource) {return SoundEvents.OCELOT_HURT;}
+    @Nullable @Override protected SoundEvent getDeathSound() {return SoundEvents.OCELOT_DEATH;}
+
+    //ANIMATIONS - Many thanks to Naturalist for the source code
+    private <E extends BallPythonEntity> PlayState predicate(final AnimationState<E> event) {
+        if (event.isMoving()) {
+            event.getController().setAnimation(WALK);
+            event.getController().setAnimationSpeed(0.75D);
+        } else {
+            event.getController().setAnimation(IDLE);
+        }
+        return PlayState.CONTINUE;
+    }
+
+    private <E extends BallPythonEntity> PlayState tonguePredicate(final AnimationState<E> event) {
+        if (this.random.nextInt(1000) < this.ambientSoundTime && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            event.getController().forceAnimationReset();
+
+            event.getController().setAnimation(TONGUE);
+        }
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "main_controller", 5, this::predicate));
+        AnimationController<BallPythonEntity> tongueController = new AnimationController<>(this, "tongue_controller", 0, this::tonguePredicate);
+        controllers.add(tongueController);
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.geoCache;
+    }
+
+    //ATTRIBUTES
+    public static AttributeSupplier.Builder createAttributes() {
+        return Animal.createLivingAttributes()
+                .add(Attributes.MAX_HEALTH, 10D)
+                .add(Attributes.MOVEMENT_SPEED, 0.151D)
+                .add(Attributes.FOLLOW_RANGE, 5f)
+                .add(Attributes.ATTACK_DAMAGE, 4.0D) //Change attack-related attributes once constriction is implemented
+                .add(Attributes.ATTACK_KNOCKBACK, 0.0D)
+                .add(Attributes.ATTACK_SPEED, 4.0D);
+    }
+
+    //GOALS
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new BreedGoal(this, 1.2D));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
+        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.1D));
+        this.goalSelector.addGoal(3, new RandomSwimmingGoal(this, 1.0D, 10));
+
+        this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
+    }
+
+    //MOVEMENT
+    public void travel(Vec3 pTravelVector) {
+        if (this.isControlledByLocalInstance() && this.isInWater()) {
+            this.moveRelative(this.getSpeed(), pTravelVector);
+            this.move(MoverType.SELF, this.getDeltaMovement());
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.9D));
+        } else {
+            super.travel(pTravelVector);
+        }
+
+    }
+
+    //INTERACTIONS
+    public InteractionResult mobInteract (Player pPlayer, InteractionHand pHand) {
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        if (itemstack.getItem() == Items.STICK) {
+            System.out.println("albino alleles: " + this.getBallPythonAllele0("albino") + ", " + this.getBallPythonAllele1("albino"));
+            System.out.println("getVisiblePhenotype interaction: " + this.getVisiblePhenotype());
+            System.out.println("Interaction entity: " + this.getStringUUID());
+            this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.PARROT_EAT, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
+        } else if (itemstack.getItem() == Items.WHITE_DYE) {
+            System.out.println("Set entity " + this.getStringUUID() + "to albino");
+            this.setGenotype("albino");
+            this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BUCKET_FILL, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
+        } else if (itemstack.getItem() == Items.BROWN_DYE) {
+            System.out.println("Set entity " + this.getStringUUID() + "to normal");
+            this.setGenotype("normal");
+            this.level().playSound((Player) null, this.getX(), this.getY(), this.getZ(), SoundEvents.BUCKET_FILL, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
+        } else return this.bucketMobPickup(pPlayer, pHand, this).orElse(super.mobInteract(pPlayer, pHand));
+    }
+
+    //BUCKETS
     @Override
     public boolean fromBucket() {
         return this.entityData.get(FROM_BUCKET);
@@ -152,63 +270,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         return SoundEvents.BUCKET_FILL_AXOLOTL;
     }
 
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(FROM_BUCKET, false);
-    }
-
-    //Goals and attributes
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new BreedGoal(this, 1.2D));
-        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
-        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.1D));
-        this.goalSelector.addGoal(3, new RandomSwimmingGoal(this, 1.0D, 10));
-
-        this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
-    }
-
-    public static AttributeSupplier.Builder createAttributes() {
-        return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 10D)
-                .add(Attributes.MOVEMENT_SPEED, 0.151D)
-                .add(Attributes.FOLLOW_RANGE, 5f)
-                .add(Attributes.ATTACK_DAMAGE, 4.0D) //Change attack-related attributes once constriction is implemented
-                .add(Attributes.ATTACK_KNOCKBACK, 0.0D)
-                .add(Attributes.ATTACK_SPEED, 4.0D);
-    }
-
-    //Movement
-    public void travel(Vec3 pTravelVector) {
-        if (this.isControlledByLocalInstance() && this.isInWater()) {
-            this.moveRelative(this.getSpeed(), pTravelVector);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.9D));
-        } else {
-            super.travel(pTravelVector);
-        }
-
-    }
-
-    //Breeding
-    @Override
-    public boolean isFood(ItemStack pStack) {
-        return pStack.is(Items.RABBIT);
-    }
-
-    @Nullable
-    @Override
-    public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
-        return ModEntities.BALL_PYTHON.get().create(pLevel);
-    }
-
-    //Interactions
-    public InteractionResult mobInteract (Player pPlayer, InteractionHand pHand) {
-        return this.bucketMobPickup(pPlayer, pHand, this).orElse(super.mobInteract(pPlayer, pHand));
-    }
-
     static <T extends LivingEntity & Bucketable> Optional<InteractionResult> bucketMobPickup(Player pPlayer, InteractionHand pHand, T pEntity) {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
         if (itemstack.getItem() == Items.BUCKET && pEntity.isAlive()) {
@@ -229,7 +290,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         }
     }
 
-    //Multipart stuff, mostly pulled from Untamed Wilds
+    //MULTIPARTS - mostly pulled from Untamed Wilds
 
     @Override
     public boolean isMultipartEntity() {
@@ -327,42 +388,278 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         return offsetDoubleArray;
     }
 
-    //Sounds
-    //Ocelot sounds are temp until snake sounds can be found
-    @Nullable @Override protected SoundEvent getAmbientSound() {return SoundEvents.OCELOT_AMBIENT;}
-    @Nullable @Override protected SoundEvent getHurtSound(DamageSource pDamageSource) {return SoundEvents.OCELOT_HURT;}
-    @Nullable @Override protected SoundEvent getDeathSound() {return SoundEvents.OCELOT_DEATH;}
-
-    //Animations - Many thanks to Naturalist for the source code
-    private <E extends BallPythonEntity> PlayState predicate(final AnimationState<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(WALK);
-            event.getController().setAnimationSpeed(0.75D);
-        } else {
-            event.getController().setAnimation(IDLE);
-        }
-        return PlayState.CONTINUE;
-    }
-
-    private <E extends BallPythonEntity> PlayState tonguePredicate(final AnimationState<E> event) {
-        if (this.random.nextInt(1000) < this.ambientSoundTime && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
-            event.getController().forceAnimationReset();
-
-            event.getController().setAnimation(TONGUE);
-        }
-        return PlayState.CONTINUE;
-    }
-
+    //BREEDING
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "main_controller", 5, this::predicate));
-        AnimationController<BallPythonEntity> tongueController = new AnimationController<>(this, "tongue_controller", 0, this::tonguePredicate);
-        //tongueController.setSoundKeyframeHandler(this::soundListener);
-        controllers.add(tongueController);
+    public boolean isFood(ItemStack pStack) {
+        return pStack.is(Items.RABBIT);
     }
 
+    @Nullable
     @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.geoCache;
+    public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
+        BallPythonEntity babySnake = ModEntities.BALL_PYTHON.get().create(pLevel);
+        if ((babySnake != null) && (pOtherParent instanceof BallPythonEntity)) {
+            if (pOtherParent instanceof BallPythonEntity) {
+                //TODO: Figure out why parent1 isn't passing its genes down properly
+                BallPythonEntity parent1 = (BallPythonEntity) pOtherParent;
+                babySnake.setGenes(getBabyGenes(this, parent1));
+            }
+        }
+        return babySnake;
+    }
+
+    public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
+        //Gets the genes of the baby ball python
+        LocusMap babyGenes = new LocusMap();
+
+        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
+            String locusName = LOCI_REFERENCE.get(i);
+            if (Math.random() < 0.5) {
+                babyGenes.loci.get(locusName).setAllele0(parent0.getBallPythonAllele0(locusName));
+            } else {
+                babyGenes.loci.get(locusName).setAllele0(parent0.getBallPythonAllele1(locusName));
+            }
+        }
+
+        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
+            String locusName = LOCI_REFERENCE.get(i);
+            if (Math.random() < 0.5) {
+                babyGenes.loci.get(locusName).setAllele0(parent1.getBallPythonAllele0(locusName));
+            } else {
+                babyGenes.loci.get(locusName).setAllele0(parent1.getBallPythonAllele1(locusName));
+            }
+        }
+        return babyGenes;
+    }
+
+    //GENETICS
+    public String PHENOTYPE_LIST = this.getVisiblePhenotype();
+    public String GENOTYPE_LIST = this.getFullGenotype();
+
+    public String getPhenotype() {
+        System.out.println("getPhenotype: " + PHENOTYPE_LIST);
+        return PHENOTYPE_LIST;
+    }
+
+    public String getGenotype() {
+        return GENOTYPE_LIST;
+    }
+    public void setGenotype(String pGenotype) {
+        System.out.println(pGenotype);
+        this.setGenes(createFromGenotype(pGenotype));
+        this.entityData.set(GENOTYPE, pGenotype);
+    }
+
+    public void setGenes (LocusMap givenLocusMap) {
+        this.genes = givenLocusMap;
+    }
+
+    public String getBallPythonLocusType(String desiredLocus) {
+        return genes.loci.get(desiredLocus).getLocusType();
+    }
+
+    public int getBallPythonAllele0(String desiredLocus) {
+        return genes.loci.get(desiredLocus).getAllele0();
+    }
+
+    public int getBallPythonAllele1(String desiredLocus) {
+        return genes.loci.get(desiredLocus).getAllele1();
+    }
+
+    //Gets the texture name for the phenotype
+    /*public String getPhenotypeTexture() {
+        ArrayList<String> visibleTraits = new ArrayList<>();
+
+        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
+            String locusName = LOCI_REFERENCE.get(i);
+            int allele0Value = this.getBallPythonAllele0(locusName);
+            int allele1Value = this.getBallPythonAllele1(locusName);
+            boolean notNormal = false;
+            boolean dominantGeneExpressed = false;
+            boolean isCodominantHeterozygous = false;
+            boolean isHomozygous = false;
+
+            if ((this.getBallPythonAllele0(locusName) != this.getBallPythonAllele1(locusName) || (this.getBallPythonAllele0(locusName) != 0))) {notNormal = true;} //Checks for a locus having at least one allele that isn't 0
+            if ((allele0Value == 1) || (allele1Value == 1)) {dominantGeneExpressed = true;}
+            if ((allele0Value == 1) ^ (allele1Value == 1)) {isCodominantHeterozygous = true;}
+            if ((allele0Value == 1) && (allele1Value == 1)) {isHomozygous = true;}
+
+            if (notNormal) {
+                switch (this.getBallPythonLocusType(locusName)) {
+                    case "dominant":
+                        if (dominantGeneExpressed) {
+                            visibleTraits.add(locusName);
+                        }
+                        break;
+                    case "codominant":
+                        if (isCodominantHeterozygous) {
+                            visibleTraits.add(locusName);
+                        } else if (isHomozygous) {
+                            locusName = locusName + "Super";
+                            visibleTraits.add(locusName);
+                        }
+                        break;
+                    case "recessive":
+                        if (isHomozygous) {
+                            visibleTraits.add(locusName);
+                        }
+                        break;
+                }
+            }
+        }
+        String phenotype = "normal";
+        Collections.sort(visibleTraits);
+        System.out.println("Visible traits: " + visibleTraits.toString());
+        System.out.println("Visible phenotype: " + this.getVisiblePhenotype());
+        for (int i = 0; i < visibleTraits.size(); i++) {
+            String trait = visibleTraits.get(i);
+            if (i == 0) {
+                phenotype = trait;
+            } else {
+                phenotype += "_" + trait;
+            }
+        }
+        return phenotype;
+    }*/
+
+    public String getVisiblePhenotype () {
+        //Returns a string of all the visible traits of a Snake (So no het albinos)
+        ArrayList<String> visibleTraits = new ArrayList<>();
+
+        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
+            String locusName = LOCI_REFERENCE.get(i);
+            int allele0Value = this.getBallPythonAllele0(locusName);
+            int allele1Value = this.getBallPythonAllele1(locusName);
+            System.out.println("getVisiblePhenotype: i=" + i + "; A0="+allele0Value + "; A1=" +  allele1Value) ;
+            boolean notNormal = false;
+            boolean dominantGeneExpressed = false;
+            boolean isCodominantHeterozygous = false;
+            boolean isHomozygous = false;
+
+            if ((this.getBallPythonAllele0(locusName) != this.getBallPythonAllele1(locusName) || (this.getBallPythonAllele0(locusName) != 0))) {notNormal = true;} //Checks for a locus having at least one allele that isn't 0
+            if ((allele0Value == 1) || (allele1Value == 1)) {dominantGeneExpressed = true;}
+            if ((allele0Value == 1) ^ (allele1Value == 1)) {isCodominantHeterozygous = true;}
+            if ((allele0Value == 1) && (allele1Value == 1)) {isHomozygous = true;}
+
+            if (notNormal) {
+                System.out.println("\tNot Normal for locusName "+ locusName + " which returns " + this.getBallPythonLocusType(locusName)) ;
+                switch (this.getBallPythonLocusType(locusName)) {
+                    case "dominant":
+                        if (dominantGeneExpressed) {
+                            visibleTraits.add(locusName);
+                        }
+                        break;
+                    case "codominant":
+                        if (isCodominantHeterozygous) {
+                            visibleTraits.add(locusName);
+                        } else if (isHomozygous) {
+                            locusName = locusName + "Super";
+                            visibleTraits.add(locusName);
+                        }
+                        break;
+                    case "recessive":
+                        if (isHomozygous) {
+                            visibleTraits.add(locusName);
+                        }
+                        break;
+                }
+            }
+        }
+        System.out.println("getVisiblePhenotype: " + visibleTraits.toString());
+        String visiblePhenotype = sortTraitList(visibleTraits);
+        return visiblePhenotype;
+    }
+
+    public String getFullGenotype() {
+        //Returns a string of every trait of a Snake, visible or not (So yes het albinos)
+        ArrayList<String> allTraits = new ArrayList<>();
+
+        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
+            String locusName = LOCI_REFERENCE.get(i);
+            int allele0Value = this.getBallPythonAllele0(locusName);
+            int allele1Value = this.getBallPythonAllele1(locusName);
+            boolean notNormal = false;
+            boolean isHeterozygous = false;
+            boolean isHomozygous = false;
+
+            if ((this.getBallPythonAllele0(locusName) != this.getBallPythonAllele1(locusName) || (this.getBallPythonAllele0(locusName) != 0))) {notNormal = true;}
+            if ((allele0Value == 1) ^ (allele1Value == 1)) {isHeterozygous = true;}
+            if ((allele0Value == 1) && (allele1Value == 1)) {isHomozygous = true;}
+
+            if (notNormal) {
+                switch (this.getBallPythonLocusType(locusName)) {
+                    case "dominant":
+                    case "codominant":
+                        if (isHeterozygous) {
+                            allTraits.add(locusName);
+                        } else if (isHomozygous) {
+                            locusName = locusName + "Super";
+                            allTraits.add(locusName);
+                        }
+                        break;
+                    case "recessive":
+                        if (isHeterozygous) {
+                            locusName = locusName + "Het";
+                            allTraits.add(locusName);
+                        } else if (isHomozygous) {
+                            allTraits.add(locusName);
+                        }
+                        break;
+                }
+            }
+        }
+        System.out.println("getFullGenotype: " + allTraits.toString());
+        String genotype = sortTraitList(allTraits);
+        return genotype;
+    }
+
+    //Standardizes the list by alphabetizing it then separates each morph by underscores (eg: "albino_pastel_pinstripe")
+    public String sortTraitList(ArrayList<String> traitList) {
+        String sortedTraits = "normal";
+        Collections.sort(traitList);
+        System.out.println("sortTraitList: " + traitList.toString());
+        for (int i = 0; i < traitList.size(); i++) {
+            String trait = traitList.get(i);
+            if (i == 0) {
+                sortedTraits = trait;
+            } else {
+                sortedTraits += "_" + trait;
+            }
+        }
+        return sortedTraits;
+    }
+
+    public LocusMap createFromGenotype(String genotype) {
+        //Returns a LocusMap created from a given genotype
+        LocusMap createdGenes = new LocusMap();
+        System.out.println("createFromPhenotype: " + genotype);
+        ArrayList<String> givenPhenotypeArray = new ArrayList<>(Arrays.asList(genotype.split("_")));
+        for (int i = 0; i < givenPhenotypeArray.size(); i++) {
+            switch (givenPhenotypeArray.get(i)) {
+                //Is it possible to condense this into a sort of ifHet/ifHomo method to make it more compact?
+                case "albinoHet":
+                    createdGenes.loci.get("albino").setAllele0(1);
+                    break;
+                case "albino":
+                    createdGenes.loci.get("albino").setAllele0(1);
+                    createdGenes.loci.get("albino").setAllele1(1);
+                    break;
+                case "pinstripe":
+                    createdGenes.loci.get("pinstripe").setAllele0(1);
+                    break;
+                case "pinstripeSuper":
+                    createdGenes.loci.get("pinstripe").setAllele0(1);
+                    createdGenes.loci.get("pinstripe").setAllele1(1);
+                    break;
+                case "pastel":
+                    createdGenes.loci.get("pastel").setAllele0(1);
+                    break;
+                case "pastelSuper":
+                    createdGenes.loci.get("pastel").setAllele0(1);
+                    createdGenes.loci.get("pastel").setAllele1(1);
+                    break;
+            }
+        }
+        return createdGenes;
     }
 }

@@ -9,7 +9,6 @@ public class BallPythonModel extends GeoModel<BallPythonEntity> {
     private final ResourceLocation animations = new ResourceLocation(Regius.MOD_ID, "animations/ballpython.animation.json");
     private final ResourceLocation modelAdult = new ResourceLocation(Regius.MOD_ID, "geo/ballpython.geo.json");
     private final ResourceLocation modelBaby = new ResourceLocation(Regius.MOD_ID, "geo/ballpython_baby.geo.json");
-    private final ResourceLocation texture = new ResourceLocation(Regius.MOD_ID, "textures/entity/ballpython/normal.png");
 
     @Override
     public ResourceLocation getAnimationResource(BallPythonEntity entity) {
@@ -23,7 +22,11 @@ public class BallPythonModel extends GeoModel<BallPythonEntity> {
 
     @Override
     public ResourceLocation getTextureResource(BallPythonEntity entity) {
-        return this.texture;
+        //String phenotype = entity.getVisiblePhenotype();
+        //System.out.println("BallPythonModel entity: " + entity.getStringUUID());
+        ResourceLocation texture = new ResourceLocation(Regius.MOD_ID, "textures/entity/ballpython/" + entity.getVisiblePhenotype() + ".png");
+        //System.out.println("### " + phenotype + ", path: textures/entity/ballpython/" + phenotype + ".png");
+        return texture;
     }
 
 }
