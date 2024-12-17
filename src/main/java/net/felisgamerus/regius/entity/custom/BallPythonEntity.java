@@ -59,8 +59,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     public int ringBufferIndex = -1;
     public final double[][] ringBuffer = new double[64][3];
 
-    LocusMap genes = new LocusMap();
-    ArrayList<String> LOCI_REFERENCE = genes.getLociArray();
+    /*LocusMap genes = new LocusMap();
+    ArrayList<String> LOCI_REFERENCE = genes.getLociArray();*/
 
     public boolean canBreatheUnderwater() {
         return true;
@@ -110,7 +110,10 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     //DATA
     //Thanks to Wyrmroost for helping me figure out string-based variants
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
+    //private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
+    //private static final EntityDataAccessor<String> VARIANT = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> GENE_0 = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> GENE_1 = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
 
     //TODO: Figure out why the genes aren't saving properly
     /*Known broken things:
@@ -122,21 +125,65 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(FROM_BUCKET, false);
-        this.entityData.define(GENOTYPE, "albino");
+        //this.entityData.define(GENOTYPE, "albino");
+        //this.entityData.define(VARIANT, "normal");
+        this.entityData.define(GENE_0, "normal");
+        this.entityData.define(GENE_1, "normal");
+
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
         pCompound.putBoolean("FromBucket", this.fromBucket());
-        pCompound.putString("Genotype", "albino");
+        //pCompound.putString("Genotype", "albino");
+        //pCompound.putString("Variant", this.getVariant());
+        pCompound.putString("Gene_0", this.getGene0());
+        pCompound.putString("Gene_1", this.getGene1());
+
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         this.setFromBucket(pCompound.getBoolean("FromBucket"));
-        this.setGenotype("albino");
+        //this.setGenotype("albino");
+        String gene0 = pCompound.contains("Gene_0")? pCompound.getString("Gene_0") : "normal";
+        this.setGene0(gene0);
+        String gene1 = pCompound.contains("Gene_1")? pCompound.getString("Gene_1") : "normal";
+        this.setGene1(gene1);
+    }
+
+    public String getGene0() {
+        return this.entityData.get(GENE_0);
+    }
+
+    public String getGene1() {
+        return this.entityData.get(GENE_1);
+    }
+
+    public void setGene0(String gene) {
+        this.entityData.set(GENE_0, gene);
+    }
+
+    public void setGene1(String gene) {
+        this.entityData.set(GENE_1, gene);
+    }
+
+    /*public String getVariant() {
+        return this.entityData.get(VARIANT);
+    }
+
+    public void setVariant(String variant) {
+        this.entityData.set(VARIANT, variant);
+    }*/
+
+    public String getTexture() {
+        if ((this.getGene0().equals("albino")) && (this.getGene1().equals("albino"))) {
+            return "albino";
+        } else {
+            return "normal";
+        }
     }
 
     //SOUNDS
@@ -216,19 +263,23 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     public InteractionResult mobInteract (Player pPlayer, InteractionHand pHand) {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
         if (itemstack.getItem() == Items.STICK) {
-            System.out.println("albino alleles: " + this.getBallPythonAllele0("albino") + ", " + this.getBallPythonAllele1("albino"));
-            System.out.println("getVisiblePhenotype interaction: " + this.getVisiblePhenotype());
+            //System.out.println("albino alleles: " + this.getBallPythonAllele0("albino") + ", " + this.getBallPythonAllele1("albino"));
+            //System.out.println("getVisiblePhenotype interaction: " + this.getVisiblePhenotype());
             System.out.println("Interaction entity: " + this.getStringUUID());
             this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.PARROT_EAT, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else if (itemstack.getItem() == Items.WHITE_DYE) {
             System.out.println("Set entity " + this.getStringUUID() + "to albino");
-            this.setGenotype("albino");
+            //this.setGenotype("albino");
+            //this.setVariant("albino");
+            this.setGene0("albino"); this.setGene1("albino");
             this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BUCKET_FILL, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else if (itemstack.getItem() == Items.BROWN_DYE) {
             System.out.println("Set entity " + this.getStringUUID() + "to normal");
-            this.setGenotype("normal");
+            //this.setGenotype("normal");
+            //this.setVariant("normal");
+            this.setGene0("normal"); this.setGene1("normal");
             this.level().playSound((Player) null, this.getX(), this.getY(), this.getZ(), SoundEvents.BUCKET_FILL, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else return this.bucketMobPickup(pPlayer, pHand, this).orElse(super.mobInteract(pPlayer, pHand));
@@ -402,13 +453,23 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
             if (pOtherParent instanceof BallPythonEntity) {
                 //TODO: Figure out why parent1 isn't passing its genes down properly
                 BallPythonEntity parent1 = (BallPythonEntity) pOtherParent;
-                babySnake.setGenes(getBabyGenes(this, parent1));
+                //babySnake.setGenes(getBabyGenes(this, parent1));
+                if (this.random.nextBoolean()) {
+                    babySnake.setGene0(this.getGene0());
+                } else {
+                    babySnake.setGene0(this.getGene1());
+                }
+                if (this.random.nextBoolean()) {
+                    babySnake.setGene1(parent1.getGene0());
+                } else {
+                    babySnake.setGene1(parent1.getGene1());
+                }
             }
         }
         return babySnake;
     }
 
-    public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
+    /*public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
         //Gets the genes of the baby ball python
         LocusMap babyGenes = new LocusMap();
 
@@ -430,10 +491,10 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
             }
         }
         return babyGenes;
-    }
+    }*/
 
     //GENETICS
-    public String PHENOTYPE_LIST = this.getVisiblePhenotype();
+    /*public String PHENOTYPE_LIST = this.getVisiblePhenotype();
     public String GENOTYPE_LIST = this.getFullGenotype();
 
     public String getPhenotype() {
@@ -464,7 +525,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
 
     public int getBallPythonAllele1(String desiredLocus) {
         return genes.loci.get(desiredLocus).getAllele1();
-    }
+    }*/
 
     //Gets the texture name for the phenotype
     /*public String getPhenotypeTexture() {
@@ -522,7 +583,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         return phenotype;
     }*/
 
-    public String getVisiblePhenotype () {
+    /*public String getVisiblePhenotype () {
         //Returns a string of all the visible traits of a Snake (So no het albinos)
         ArrayList<String> visibleTraits = new ArrayList<>();
 
@@ -661,5 +722,5 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
             }
         }
         return createdGenes;
-    }
+    }*/
 }

@@ -24,7 +24,7 @@ public class BallPythonModel extends GeoModel<BallPythonEntity> {
     public ResourceLocation getTextureResource(BallPythonEntity entity) {
         //String phenotype = entity.getVisiblePhenotype();
         //System.out.println("BallPythonModel entity: " + entity.getStringUUID());
-        ResourceLocation texture = new ResourceLocation(Regius.MOD_ID, "textures/entity/ballpython/" + entity.getVisiblePhenotype() + ".png");
+        ResourceLocation texture = new ResourceLocation(Regius.MOD_ID, "textures/entity/ballpython/" + entity.getTexture() + ".png");
         //System.out.println("### " + phenotype + ", path: textures/entity/ballpython/" + phenotype + ".png");
         return texture;
     }
