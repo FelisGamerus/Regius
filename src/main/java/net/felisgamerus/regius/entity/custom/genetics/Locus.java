@@ -1,4 +1,4 @@
-package net.felisgamerus.regius.genetics;
+package net.felisgamerus.regius.entity.custom.genetics;
 
 public class Locus {
     //Each individual locus where the alleles are stored; used for determining what a Snake looks like

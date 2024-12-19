@@ -1,7 +1,7 @@
 package net.felisgamerus.regius.entity.custom;
 
 import net.felisgamerus.regius.entity.ModEntities;
-import net.felisgamerus.regius.genetics.LocusMap;
+import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.nbt.CompoundTag;
@@ -59,8 +59,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     public int ringBufferIndex = -1;
     public final double[][] ringBuffer = new double[64][3];
 
-    /*LocusMap genes = new LocusMap();
-    ArrayList<String> LOCI_REFERENCE = genes.getLociArray();*/
+    LocusMap ballPythonGenes = new LocusMap();
+    ArrayList<String> LOCI_REFERENCE = ballPythonGenes.getLociArray();
 
     public boolean canBreatheUnderwater() {
         return true;
@@ -102,18 +102,12 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         for (int i = 0; i < this.MULTIPART_COUNT; i++) {
             this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
         }
-        /*System.out.println("CONSTRUCTOR START: visible phenotype is " + this.getVisiblePhenotype());
-        if (Math.random() < 0.5) {this.setGenotype("albino");} else {this.setGenotype("normal");}
-        System.out.println("CONSTRUCTOR END: visible phenotype is " + this.getVisiblePhenotype());*/
     }
 
     //DATA
     //Thanks to Wyrmroost for helping me figure out string-based variants
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
-    //private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
-    //private static final EntityDataAccessor<String> VARIANT = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> GENE_0 = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> GENE_1 = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
 
     //TODO: Figure out why the genes aren't saving properly
     /*Known broken things:
@@ -125,65 +119,23 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(FROM_BUCKET, false);
-        //this.entityData.define(GENOTYPE, "albino");
-        //this.entityData.define(VARIANT, "normal");
-        this.entityData.define(GENE_0, "normal");
-        this.entityData.define(GENE_1, "normal");
-
+        this.entityData.define(GENOTYPE, "normal");
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
         pCompound.putBoolean("FromBucket", this.fromBucket());
-        //pCompound.putString("Genotype", "albino");
-        //pCompound.putString("Variant", this.getVariant());
-        pCompound.putString("Gene_0", this.getGene0());
-        pCompound.putString("Gene_1", this.getGene1());
-
+        pCompound.putString("Genotype", this.getGenotype());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         this.setFromBucket(pCompound.getBoolean("FromBucket"));
-        //this.setGenotype("albino");
-        String gene0 = pCompound.contains("Gene_0")? pCompound.getString("Gene_0") : "normal";
-        this.setGene0(gene0);
-        String gene1 = pCompound.contains("Gene_1")? pCompound.getString("Gene_1") : "normal";
-        this.setGene1(gene1);
-    }
 
-    public String getGene0() {
-        return this.entityData.get(GENE_0);
-    }
-
-    public String getGene1() {
-        return this.entityData.get(GENE_1);
-    }
-
-    public void setGene0(String gene) {
-        this.entityData.set(GENE_0, gene);
-    }
-
-    public void setGene1(String gene) {
-        this.entityData.set(GENE_1, gene);
-    }
-
-    /*public String getVariant() {
-        return this.entityData.get(VARIANT);
-    }
-
-    public void setVariant(String variant) {
-        this.entityData.set(VARIANT, variant);
-    }*/
-
-    public String getTexture() {
-        if ((this.getGene0().equals("albino")) && (this.getGene1().equals("albino"))) {
-            return "albino";
-        } else {
-            return "normal";
-        }
+        String genotype = pCompound.contains("Genotype")? pCompound.getString("Genotype") : "normal";
+        setGenotype(genotype);
     }
 
     //SOUNDS
@@ -268,20 +220,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
             System.out.println("Interaction entity: " + this.getStringUUID());
             this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.PARROT_EAT, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
             return InteractionResult.sidedSuccess(this.level().isClientSide);
-        } else if (itemstack.getItem() == Items.WHITE_DYE) {
-            System.out.println("Set entity " + this.getStringUUID() + "to albino");
-            //this.setGenotype("albino");
-            //this.setVariant("albino");
-            this.setGene0("albino"); this.setGene1("albino");
-            this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BUCKET_FILL, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
-        } else if (itemstack.getItem() == Items.BROWN_DYE) {
-            System.out.println("Set entity " + this.getStringUUID() + "to normal");
-            //this.setGenotype("normal");
-            //this.setVariant("normal");
-            this.setGene0("normal"); this.setGene1("normal");
-            this.level().playSound((Player) null, this.getX(), this.getY(), this.getZ(), SoundEvents.BUCKET_FILL, this.getSoundSource(), 1.0F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F);
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else return this.bucketMobPickup(pPlayer, pHand, this).orElse(super.mobInteract(pPlayer, pHand));
     }
 
@@ -301,6 +239,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         Bucketable.saveDefaultDataToBucketTag(this, pStack);
         CompoundTag compoundtag = pStack.getOrCreateTag();
         compoundtag.putInt("Age", this.getAge());
+        compoundtag.putString("Genotype", this.getGenotype());
     }
 
     @Override
@@ -308,6 +247,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         Bucketable.loadDefaultDataFromBucketTag(this, pTag);
         if (pTag.contains("Age")) {
             this.setAge(pTag.getInt("Age"));
+        }
+        if (pTag.contains("Genotype")) {
+            this.setGenotype(pTag.getString("Genotype"));
         }
     }
 
@@ -453,187 +395,94 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
             if (pOtherParent instanceof BallPythonEntity) {
                 //TODO: Figure out why parent1 isn't passing its genes down properly
                 BallPythonEntity parent1 = (BallPythonEntity) pOtherParent;
-                //babySnake.setGenes(getBabyGenes(this, parent1));
-                if (this.random.nextBoolean()) {
-                    babySnake.setGene0(this.getGene0());
-                } else {
-                    babySnake.setGene0(this.getGene1());
-                }
-                if (this.random.nextBoolean()) {
-                    babySnake.setGene1(parent1.getGene0());
-                } else {
-                    babySnake.setGene1(parent1.getGene1());
-                }
+                babySnake.setGenes(getBabyGenes(this, parent1));
             }
         }
         return babySnake;
     }
 
-    /*public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
+    public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
         //Gets the genes of the baby ball python
         LocusMap babyGenes = new LocusMap();
 
         for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
             String locusName = LOCI_REFERENCE.get(i);
-            if (Math.random() < 0.5) {
-                babyGenes.loci.get(locusName).setAllele0(parent0.getBallPythonAllele0(locusName));
+            if (this.random.nextBoolean()) {
+                babyGenes.genes.get(locusName).setAllele0(parent0.getBallPythonAllele0(locusName));
             } else {
-                babyGenes.loci.get(locusName).setAllele0(parent0.getBallPythonAllele1(locusName));
+                babyGenes.genes.get(locusName).setAllele0(parent0.getBallPythonAllele1(locusName));
             }
         }
 
         for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
             String locusName = LOCI_REFERENCE.get(i);
-            if (Math.random() < 0.5) {
-                babyGenes.loci.get(locusName).setAllele0(parent1.getBallPythonAllele0(locusName));
+            if (this.random.nextBoolean()) {
+                babyGenes.genes.get(locusName).setAllele0(parent1.getBallPythonAllele0(locusName));
             } else {
-                babyGenes.loci.get(locusName).setAllele0(parent1.getBallPythonAllele1(locusName));
+                babyGenes.genes.get(locusName).setAllele0(parent1.getBallPythonAllele1(locusName));
             }
         }
         return babyGenes;
-    }*/
+    }
 
     //GENETICS
-    /*public String PHENOTYPE_LIST = this.getVisiblePhenotype();
-    public String GENOTYPE_LIST = this.getFullGenotype();
-
-    public String getPhenotype() {
-        System.out.println("getPhenotype: " + PHENOTYPE_LIST);
-        return PHENOTYPE_LIST;
-    }
-
-    public String getGenotype() {
-        return GENOTYPE_LIST;
-    }
     public void setGenotype(String pGenotype) {
-        System.out.println(pGenotype);
-        this.setGenes(createFromGenotype(pGenotype));
-        this.entityData.set(GENOTYPE, pGenotype);
+        this.setGenes(createGenesFromGenotype(pGenotype));
+        if (!(this.getGenotypeString().equals("normal"))) {
+            this.entityData.set(GENOTYPE, pGenotype);
+        } else {
+            this.entityData.set(GENOTYPE, "normal");
+        }
+    }
+
+    public String getGenotype () {
+        return this.entityData.get(GENOTYPE);
     }
 
     public void setGenes (LocusMap givenLocusMap) {
-        this.genes = givenLocusMap;
+        this.ballPythonGenes = givenLocusMap;
     }
 
-    public String getBallPythonLocusType(String desiredLocus) {
-        return genes.loci.get(desiredLocus).getLocusType();
+    public String getBallPythonLocusType(String locus) {
+        return ballPythonGenes.genes.get(locus).getLocusType();
     }
 
-    public int getBallPythonAllele0(String desiredLocus) {
-        return genes.loci.get(desiredLocus).getAllele0();
+    public int getBallPythonAllele0(String locus) {
+        return ballPythonGenes.genes.get(locus).getAllele0();
     }
 
-    public int getBallPythonAllele1(String desiredLocus) {
-        return genes.loci.get(desiredLocus).getAllele1();
-    }*/
+    public int getBallPythonAllele1(String locus) {
+        return ballPythonGenes.genes.get(locus).getAllele1();
+    }
 
-    //Gets the texture name for the phenotype
-    /*public String getPhenotypeTexture() {
-        ArrayList<String> visibleTraits = new ArrayList<>();
-
-        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
-            String locusName = LOCI_REFERENCE.get(i);
-            int allele0Value = this.getBallPythonAllele0(locusName);
-            int allele1Value = this.getBallPythonAllele1(locusName);
-            boolean notNormal = false;
-            boolean dominantGeneExpressed = false;
-            boolean isCodominantHeterozygous = false;
-            boolean isHomozygous = false;
-
-            if ((this.getBallPythonAllele0(locusName) != this.getBallPythonAllele1(locusName) || (this.getBallPythonAllele0(locusName) != 0))) {notNormal = true;} //Checks for a locus having at least one allele that isn't 0
-            if ((allele0Value == 1) || (allele1Value == 1)) {dominantGeneExpressed = true;}
-            if ((allele0Value == 1) ^ (allele1Value == 1)) {isCodominantHeterozygous = true;}
-            if ((allele0Value == 1) && (allele1Value == 1)) {isHomozygous = true;}
-
-            if (notNormal) {
-                switch (this.getBallPythonLocusType(locusName)) {
-                    case "dominant":
-                        if (dominantGeneExpressed) {
-                            visibleTraits.add(locusName);
-                        }
-                        break;
-                    case "codominant":
-                        if (isCodominantHeterozygous) {
-                            visibleTraits.add(locusName);
-                        } else if (isHomozygous) {
-                            locusName = locusName + "Super";
-                            visibleTraits.add(locusName);
-                        }
-                        break;
-                    case "recessive":
-                        if (isHomozygous) {
-                            visibleTraits.add(locusName);
-                        }
-                        break;
-                }
-            }
-        }
+    //Converts a ball python's genotype to its visible phenotype
+    public String convertGenotypeToPhenotype (String genotype) {
         String phenotype = "normal";
-        Collections.sort(visibleTraits);
-        System.out.println("Visible traits: " + visibleTraits.toString());
-        System.out.println("Visible phenotype: " + this.getVisiblePhenotype());
-        for (int i = 0; i < visibleTraits.size(); i++) {
-            String trait = visibleTraits.get(i);
-            if (i == 0) {
-                phenotype = trait;
-            } else {
-                phenotype += "_" + trait;
-            }
-        }
-        return phenotype;
-    }*/
-
-    /*public String getVisiblePhenotype () {
-        //Returns a string of all the visible traits of a Snake (So no het albinos)
-        ArrayList<String> visibleTraits = new ArrayList<>();
-
-        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
-            String locusName = LOCI_REFERENCE.get(i);
-            int allele0Value = this.getBallPythonAllele0(locusName);
-            int allele1Value = this.getBallPythonAllele1(locusName);
-            System.out.println("getVisiblePhenotype: i=" + i + "; A0="+allele0Value + "; A1=" +  allele1Value) ;
-            boolean notNormal = false;
-            boolean dominantGeneExpressed = false;
-            boolean isCodominantHeterozygous = false;
-            boolean isHomozygous = false;
-
-            if ((this.getBallPythonAllele0(locusName) != this.getBallPythonAllele1(locusName) || (this.getBallPythonAllele0(locusName) != 0))) {notNormal = true;} //Checks for a locus having at least one allele that isn't 0
-            if ((allele0Value == 1) || (allele1Value == 1)) {dominantGeneExpressed = true;}
-            if ((allele0Value == 1) ^ (allele1Value == 1)) {isCodominantHeterozygous = true;}
-            if ((allele0Value == 1) && (allele1Value == 1)) {isHomozygous = true;}
-
-            if (notNormal) {
-                System.out.println("\tNot Normal for locusName "+ locusName + " which returns " + this.getBallPythonLocusType(locusName)) ;
-                switch (this.getBallPythonLocusType(locusName)) {
-                    case "dominant":
-                        if (dominantGeneExpressed) {
-                            visibleTraits.add(locusName);
-                        }
-                        break;
-                    case "codominant":
-                        if (isCodominantHeterozygous) {
-                            visibleTraits.add(locusName);
-                        } else if (isHomozygous) {
-                            locusName = locusName + "Super";
-                            visibleTraits.add(locusName);
-                        }
-                        break;
-                    case "recessive":
-                        if (isHomozygous) {
-                            visibleTraits.add(locusName);
-                        }
-                        break;
+        ArrayList<String> traitList = new ArrayList<>(Arrays.asList(genotype.split("_")));
+        for (int i = 0; i < traitList.size(); i++) {
+            String trait = traitList.get(i);
+            if (trait.endsWith(".het")) { //Checks if the trait is het recessive. True = skip
+                trait = null;
+            } else if (trait.endsWith(".super")) { //Checks if the trait is homo dominant. True = no longer super
+                String locus = trait.substring(0, (trait.length() - 6));
+                if (this.getBallPythonLocusType(locus).equals("dominant")) {
+                    trait = locus;
                 }
             }
-        }
-        System.out.println("getVisiblePhenotype: " + visibleTraits.toString());
-        String visiblePhenotype = sortTraitList(visibleTraits);
-        return visiblePhenotype;
+            if (trait != null) {
+                if (phenotype.equals("normal")) {
+                    phenotype = trait;
+                } else {
+                    phenotype += "_" + trait;
+                }
+            }
+        } return phenotype;
     }
 
-    public String getFullGenotype() {
+    public String getGenotypeString() {
         //Returns a string of every trait of a Snake, visible or not (So yes het albinos)
-        ArrayList<String> allTraits = new ArrayList<>();
+        ArrayList<String> traitList = new ArrayList<>();
+        String genotype = "normal";
 
         for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
             String locusName = LOCI_REFERENCE.get(i);
@@ -652,75 +501,55 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
                     case "dominant":
                     case "codominant":
                         if (isHeterozygous) {
-                            allTraits.add(locusName);
+                            traitList.add(locusName);
                         } else if (isHomozygous) {
-                            locusName = locusName + "Super";
-                            allTraits.add(locusName);
+                            locusName = locusName + ".super";
+                            traitList.add(locusName);
                         }
                         break;
                     case "recessive":
                         if (isHeterozygous) {
-                            locusName = locusName + "Het";
-                            allTraits.add(locusName);
+                            locusName = locusName + ".het";
+                            traitList.add(locusName);
                         } else if (isHomozygous) {
-                            allTraits.add(locusName);
+                            traitList.add(locusName);
                         }
                         break;
                 }
             }
         }
-        System.out.println("getFullGenotype: " + allTraits.toString());
-        String genotype = sortTraitList(allTraits);
+        Collections.sort(traitList);
+        for (int i = 0; i < traitList.size(); i++) {
+            String trait = traitList.get(i);
+            if (genotype.equals("normal")) {
+                genotype = trait;
+            } else {
+                genotype += "_" + trait;
+            }
+        }
         return genotype;
     }
 
-    //Standardizes the list by alphabetizing it then separates each morph by underscores (eg: "albino_pastel_pinstripe")
-    public String sortTraitList(ArrayList<String> traitList) {
-        String sortedTraits = "normal";
-        Collections.sort(traitList);
-        System.out.println("sortTraitList: " + traitList.toString());
-        for (int i = 0; i < traitList.size(); i++) {
-            String trait = traitList.get(i);
-            if (i == 0) {
-                sortedTraits = trait;
-            } else {
-                sortedTraits += "_" + trait;
-            }
-        }
-        return sortedTraits;
-    }
-
-    public LocusMap createFromGenotype(String genotype) {
+    public LocusMap createGenesFromGenotype(String genotype) {
         //Returns a LocusMap created from a given genotype
         LocusMap createdGenes = new LocusMap();
-        System.out.println("createFromPhenotype: " + genotype);
-        ArrayList<String> givenPhenotypeArray = new ArrayList<>(Arrays.asList(genotype.split("_")));
-        for (int i = 0; i < givenPhenotypeArray.size(); i++) {
-            switch (givenPhenotypeArray.get(i)) {
-                //Is it possible to condense this into a sort of ifHet/ifHomo method to make it more compact?
-                case "albinoHet":
-                    createdGenes.loci.get("albino").setAllele0(1);
-                    break;
-                case "albino":
-                    createdGenes.loci.get("albino").setAllele0(1);
-                    createdGenes.loci.get("albino").setAllele1(1);
-                    break;
-                case "pinstripe":
-                    createdGenes.loci.get("pinstripe").setAllele0(1);
-                    break;
-                case "pinstripeSuper":
-                    createdGenes.loci.get("pinstripe").setAllele0(1);
-                    createdGenes.loci.get("pinstripe").setAllele1(1);
-                    break;
-                case "pastel":
-                    createdGenes.loci.get("pastel").setAllele0(1);
-                    break;
-                case "pastelSuper":
-                    createdGenes.loci.get("pastel").setAllele0(1);
-                    createdGenes.loci.get("pastel").setAllele1(1);
-                    break;
+        ArrayList<String> traitList = new ArrayList<>(Arrays.asList(genotype.split("_")));
+        Collections.sort(traitList);
+        for (int i = 0; i < traitList.size(); i++) {
+            Boolean isHomozygous = false;
+            String trait = traitList.get(i);
+            if (trait.endsWith(".het")) { //Check if it's het recessive
+                trait = trait.substring(0, (trait.length() - 4));
+            } else if (trait.endsWith(".super")) { //Checks if it's homo dominant/co-dominant
+                trait = trait.substring(0, (trait.length() - 6));
+                isHomozygous = true;
+            } else if (this.getBallPythonLocusType(trait).equals("recessive")) { //Checks if it's homo recessive
+                isHomozygous = true;
             }
-        }
-        return createdGenes;
-    }*/
+            createdGenes.genes.get(trait).setAllele0(1); //Adds the trait to the new genes
+            if (isHomozygous) {
+                createdGenes.genes.get(trait).setAllele1(1); //Adds it again if homo
+            }
+        } return createdGenes;
+    }
 }

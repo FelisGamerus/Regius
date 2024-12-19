@@ -1,4 +1,4 @@
-package net.felisgamerus.regius.genetics;
+package net.felisgamerus.regius.entity.custom.genetics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 public class LocusMap {
     //A HashMap of Loci and their locusNames; used to contain the genes of a Snake
-    public HashMap<String, Locus> loci = new HashMap<>();
-    final ArrayList<String> LOCI = new ArrayList<>(Arrays.asList("albino", "pinstripe", "pastel"));
+    public HashMap<String, Locus> genes = new HashMap<>();
+    final ArrayList<String> ALL_LOCI = new ArrayList<>(Arrays.asList("albino", "pinstripe", "pastel"));
     final ArrayList<String> DOMINANT_LOCI = new ArrayList<>(Arrays.asList("pinstripe"));
     final ArrayList<String> CODOMINANT_LOCI = new ArrayList<>(Arrays.asList("pastel"));
     final ArrayList<String> RECESSIVE_LOCI = new ArrayList<>(Arrays.asList("albino"));
@@ -18,8 +18,8 @@ public class LocusMap {
 
     public void fillDefaultLocusMap() {
         //Initializes the LocusMap
-        for (int i = 0; i < LOCI.size(); i++) {
-            String locusName = LOCI.get(i);
+        for (int i = 0; i < ALL_LOCI.size(); i++) {
+            String locusName = ALL_LOCI.get(i);
             String locusType = "unknown";
             if (DOMINANT_LOCI.contains(locusName)) {
                 locusType = "dominant";
@@ -29,10 +29,10 @@ public class LocusMap {
                 locusType = "recessive";
             }
             Locus locus = new Locus(locusName, locusType);
-            loci.put(locusName, locus);
+            genes.put(locusName, locus);
         }
     }
 
     //Needed for the breeder
-    public ArrayList getLociArray () {return LOCI;}
+    public ArrayList getLociArray () {return ALL_LOCI;}
 }
