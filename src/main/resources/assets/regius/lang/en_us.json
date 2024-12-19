@@ -1,6 +1,8 @@
 {
     "creativetab.regius_tab": "Regius",
 
+	"entity.regius.ball_python": "Ball Python",
+
 	"item.regius.ball_python_spawn_egg": "Ball Python Spawn Egg",
 	"item.regius.ball_python_bucket": "Bucket of Ball Python",
 
