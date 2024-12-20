@@ -33,6 +33,13 @@ public class LocusMap {
         }
     }
 
-    //Needed for the breeder
     public ArrayList getLociArray () {return ALL_LOCI;}
+
+    public String getLocusType(String locus) {return this.genes.get(locus).getLocusType();}
+
+    public void setAllele0(String locus, int newAllele) {this.genes.get(locus).setAllele0(newAllele);}
+    public int getAllele0(String locus) {return this.genes.get(locus).getAllele0();}
+
+    public void setAllele1(String locus, int newAllele) {this.genes.get(locus).setAllele1(newAllele);}
+    public int getAllele1(String locus) {return this.genes.get(locus).getAllele1();}
 }

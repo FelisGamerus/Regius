@@ -1,6 +1,7 @@
 package net.felisgamerus.regius.entity.custom;
 
 import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.entity.custom.genetics.Locus;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -395,7 +396,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
             if (pOtherParent instanceof BallPythonEntity) {
                 //TODO: Figure out why parent1 isn't passing its genes down properly
                 BallPythonEntity parent1 = (BallPythonEntity) pOtherParent;
-                babySnake.setGenes(getBabyGenes(this, parent1));
+                LocusMap babyGenes = getBabyGenes(this, parent1);
+                babySnake.setGenes(babyGenes);
+                babySnake.setGenotype(getGenotypeString(babyGenes));
             }
         }
         return babySnake;
@@ -404,22 +407,24 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
         //Gets the genes of the baby ball python
         LocusMap babyGenes = new LocusMap();
+        LocusMap parent0Genes = createGenesFromGenotype(parent0.getGenotype());
+        LocusMap parent1Genes = createGenesFromGenotype(parent1.getGenotype());
 
         for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
             String locusName = LOCI_REFERENCE.get(i);
             if (this.random.nextBoolean()) {
-                babyGenes.genes.get(locusName).setAllele0(parent0.getBallPythonAllele0(locusName));
+                babyGenes.genes.get(locusName).setAllele0(parent0Genes.genes.get(locusName).getAllele0());
             } else {
-                babyGenes.genes.get(locusName).setAllele0(parent0.getBallPythonAllele1(locusName));
+                babyGenes.genes.get(locusName).setAllele0(parent0Genes.genes.get(locusName).getAllele1());
             }
         }
 
         for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
             String locusName = LOCI_REFERENCE.get(i);
             if (this.random.nextBoolean()) {
-                babyGenes.genes.get(locusName).setAllele0(parent1.getBallPythonAllele0(locusName));
+                babyGenes.genes.get(locusName).setAllele1(parent1Genes.genes.get(locusName).getAllele0());
             } else {
-                babyGenes.genes.get(locusName).setAllele0(parent1.getBallPythonAllele1(locusName));
+                babyGenes.genes.get(locusName).setAllele1(parent1Genes.genes.get(locusName).getAllele1());
             }
         }
         return babyGenes;
@@ -428,7 +433,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
     //GENETICS
     public void setGenotype(String pGenotype) {
         this.setGenes(createGenesFromGenotype(pGenotype));
-        if (!(this.getGenotypeString().equals("normal"))) {
+        if (!(getGenotypeString(this.ballPythonGenes).equals("normal"))) {
             this.entityData.set(GENOTYPE, pGenotype);
         } else {
             this.entityData.set(GENOTYPE, "normal");
@@ -443,18 +448,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         this.ballPythonGenes = givenLocusMap;
     }
 
-    public String getBallPythonLocusType(String locus) {
-        return ballPythonGenes.genes.get(locus).getLocusType();
-    }
-
-    public int getBallPythonAllele0(String locus) {
-        return ballPythonGenes.genes.get(locus).getAllele0();
-    }
-
-    public int getBallPythonAllele1(String locus) {
-        return ballPythonGenes.genes.get(locus).getAllele1();
-    }
-
     //Converts a ball python's genotype to its visible phenotype
     public String convertGenotypeToPhenotype (String genotype) {
         String phenotype = "normal";
@@ -465,7 +458,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
                 trait = null;
             } else if (trait.endsWith(".super")) { //Checks if the trait is homo dominant. True = no longer super
                 String locus = trait.substring(0, (trait.length() - 6));
-                if (this.getBallPythonLocusType(locus).equals("dominant")) {
+                if (this.ballPythonGenes.getLocusType(locus).equals("dominant")) {
                     trait = locus;
                 }
             }
@@ -479,49 +472,53 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         } return phenotype;
     }
 
-    public String getGenotypeString() {
-        //Returns a string of every trait of a Snake, visible or not (So yes het albinos)
-        ArrayList<String> traitList = new ArrayList<>();
+    public String getGenotypeString(LocusMap genes) {
+        //aka the advanced (adv) reader
+        //Returns a string of every trait of a Snake, visible or not (So yes het albinos). This one's mainly for debug purposes
+        ArrayList<String> allTraits = new ArrayList<>();
         String genotype = "normal";
 
         for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
             String locusName = LOCI_REFERENCE.get(i);
-            int allele0Value = this.getBallPythonAllele0(locusName);
-            int allele1Value = this.getBallPythonAllele1(locusName);
+            int allele0Value = genes.getAllele0(locusName);
+            int allele1Value = genes.getAllele1(locusName);
             boolean notNormal = false;
-            boolean isHeterozygous = false;
+            //boolean dominantGeneExpressed = false;
+            boolean isCodominantHeterozygous = false;
             boolean isHomozygous = false;
 
-            if ((this.getBallPythonAllele0(locusName) != this.getBallPythonAllele1(locusName) || (this.getBallPythonAllele0(locusName) != 0))) {notNormal = true;}
-            if ((allele0Value == 1) ^ (allele1Value == 1)) {isHeterozygous = true;}
+            if ((allele0Value != allele1Value) || (allele0Value != 0)) {notNormal = true;}
+            //if ((allele0Value == 1) || (allele1Value == 1)) {dominantGeneExpressed = true;}
+            if ((allele0Value == 1) ^ (allele1Value == 1)) {isCodominantHeterozygous = true;}
             if ((allele0Value == 1) && (allele1Value == 1)) {isHomozygous = true;}
 
             if (notNormal) {
-                switch (this.getBallPythonLocusType(locusName)) {
+                switch (genes.getLocusType(locusName)) {
                     case "dominant":
                     case "codominant":
-                        if (isHeterozygous) {
-                            traitList.add(locusName);
+                        if (isCodominantHeterozygous) {
+                            allTraits.add(locusName);
                         } else if (isHomozygous) {
                             locusName = locusName + ".super";
-                            traitList.add(locusName);
+                            allTraits.add(locusName);
                         }
                         break;
                     case "recessive":
-                        if (isHeterozygous) {
+                        if (isCodominantHeterozygous) {
                             locusName = locusName + ".het";
-                            traitList.add(locusName);
+                            allTraits.add(locusName);
                         } else if (isHomozygous) {
-                            traitList.add(locusName);
+                            allTraits.add(locusName);
                         }
                         break;
                 }
             }
         }
-        Collections.sort(traitList);
-        for (int i = 0; i < traitList.size(); i++) {
-            String trait = traitList.get(i);
-            if (genotype.equals("normal")) {
+
+        Collections.sort(allTraits);
+        for (int i = 0; i < allTraits.size(); i++) {
+            String trait = allTraits.get(i);
+            if (i == 0) {
                 genotype = trait;
             } else {
                 genotype += "_" + trait;
@@ -538,17 +535,23 @@ public class BallPythonEntity extends Animal implements GeoEntity, Bucketable {
         for (int i = 0; i < traitList.size(); i++) {
             Boolean isHomozygous = false;
             String trait = traitList.get(i);
-            if (trait.endsWith(".het")) { //Check if it's het recessive
-                trait = trait.substring(0, (trait.length() - 4));
-            } else if (trait.endsWith(".super")) { //Checks if it's homo dominant/co-dominant
-                trait = trait.substring(0, (trait.length() - 6));
-                isHomozygous = true;
-            } else if (this.getBallPythonLocusType(trait).equals("recessive")) { //Checks if it's homo recessive
-                isHomozygous = true;
+            if (trait.equals("normal")) {
+                break;
             }
-            createdGenes.genes.get(trait).setAllele0(1); //Adds the trait to the new genes
-            if (isHomozygous) {
-                createdGenes.genes.get(trait).setAllele1(1); //Adds it again if homo
+            if (trait != null) {
+                if (trait.endsWith(".het")) { //Check if it's het recessive
+                    trait = trait.substring(0, (trait.length() - 4));
+                } else if (trait.endsWith(".super")) { //Checks if it's homo dominant/co-dominant
+                    trait = trait.substring(0, (trait.length() - 6));
+                    isHomozygous = true;
+                } else if (this.ballPythonGenes.getLocusType(trait).equals("recessive")) { //Checks if it's homo recessive
+                    isHomozygous = true;
+                }
+
+                createdGenes.genes.get(trait).setAllele0(1); //Adds the trait to the new genes
+                if (isHomozygous) {
+                    createdGenes.genes.get(trait).setAllele1(1); //Adds it again if homo
+                }
             }
         } return createdGenes;
     }
