@@ -1,5 +1,13 @@
 package net.felisgamerus.regius;
 
+import net.felisgamerus.regius.block.ModBlocks;
+import net.felisgamerus.regius.item.ModCreativeModeTabs;
+import net.felisgamerus.regius.item.ModItems;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.block.ComposterBlock;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -35,6 +43,11 @@ public class Regius {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
 
+        ModCreativeModeTabs.register(modEventBus);
+
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
@@ -42,10 +55,23 @@ public class Regius {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.DRIED_SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
+        registerCompostables();
+    }
+
+    public static void registerCompostables() {
+        ComposterBlock.COMPOSTABLES.put(ModItems.SPHAGNUM_MOSS.get(), 0.65F);
+        ComposterBlock.COMPOSTABLES.put(ModItems.DRIED_SPHAGNUM_MOSS.get(), 0.65F);
+        ComposterBlock.COMPOSTABLES.put(ModItems.SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
+        ComposterBlock.COMPOSTABLES.put(ModItems.DRIED_SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
     }
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
+            //event.accept(ModItems.SPHAGNUM_MOSS);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "regius:block/sphagnum_moss"
+      },
+      {
+        "model": "regius:block/sphagnum_moss",
+        "y": 90
+      },
+      {
+        "model": "regius:block/sphagnum_moss",
+        "y": 180
+      },
+      {
+        "model": "regius:block/sphagnum_moss",
+        "y": 270
+      }
+    ]
+  }
+}
