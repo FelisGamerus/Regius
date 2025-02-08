@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class DriedSphagnumBase extends Block {
-    //Some methods copied from ConcretePowederBlock, used to hydrate the plant
+    //Some methods copied from ConcretePowderBlock, used to hydrate the plant
     private final BlockState lushPlant;
 
     public DriedSphagnumBase(Block lushPlant, Properties pProperties) {
