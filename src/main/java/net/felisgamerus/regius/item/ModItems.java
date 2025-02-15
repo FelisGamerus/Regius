@@ -16,13 +16,13 @@ public class ModItems {
     public static final DeferredItem<Item> SPHAGNUM_MOSS = ITEMS.register("sphagnum_moss",
             () -> new BlockItem(ModBlocks.SPHAGNUM_MOSS.get(), new Item.Properties()));
     public static final DeferredItem<Item> DRIED_SPHAGNUM_MOSS = ITEMS.register("dried_sphagnum_moss",
-            () -> new BlockItem(ModBlocks.DRIED_SPHAGNUM_MOSS.get(), new Item.Properties()));
+            () -> new FuelBlockItem(ModBlocks.DRIED_SPHAGNUM_MOSS.get(), new Item.Properties(), 100));
 
     //Sphagnum blocks
     public static final DeferredItem<Item> SPHAGNUM_MOSS_BLOCK = ITEMS.register("sphagnum_moss_block",
             () -> new BlockItem(ModBlocks.SPHAGNUM_MOSS_BLOCK.get(), new Item.Properties()));
     public static final DeferredItem<Item> DRIED_SPHAGNUM_MOSS_BLOCK = ITEMS.register("dried_sphagnum_moss_block",
-            () -> new BlockItem(ModBlocks.DRIED_SPHAGNUM_MOSS_BLOCK.get(), new Item.Properties()));
+            () -> new FuelBlockItem(ModBlocks.DRIED_SPHAGNUM_MOSS_BLOCK.get(), new Item.Properties(), 300));
 
     //Hollow logs
     public static final DeferredItem<Item> HOLLOW_STRIPPED_OAK_LOG = ITEMS.register("hollow_stripped_oak_log",
