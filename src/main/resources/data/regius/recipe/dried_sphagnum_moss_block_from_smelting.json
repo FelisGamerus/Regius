@@ -6,5 +6,7 @@
   "ingredient": {
     "item": "regius:sphagnum_moss_block"
   },
-  "result": "regius:dried_sphagnum_moss_block"
+  "result": {
+    "id": "regius:dried_sphagnum_moss_block"
+  }
 }

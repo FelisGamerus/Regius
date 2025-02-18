@@ -3,15 +3,15 @@
   "category": "building",
   "key": {
     "#": {
-      "item": "regius:sphagnum_moss"
+      "item": "minecraft:oak_log"
     }
   },
   "pattern": [
     "###",
-    "###",
+    "# #",
     "###"
   ],
   "result": {
-    "item": "regius:sphagnum_moss_block"
+    "id": "regius:hollow_oak_log"
   }
 }
