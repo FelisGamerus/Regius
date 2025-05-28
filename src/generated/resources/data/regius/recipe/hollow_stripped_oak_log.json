@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "building",
+  "category": "misc",
   "key": {
     "#": {
-      "item": "minecraft:oak_log"
+      "item": "minecraft:stripped_oak_log"
     }
   },
   "pattern": [
@@ -12,6 +12,7 @@
     "###"
   ],
   "result": {
-    "id": "regius:hollow_oak_log"
+    "count": 1,
+    "id": "regius:hollow_stripped_oak_log"
   }
 }

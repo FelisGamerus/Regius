@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "building",
+  "category": "misc",
   "key": {
     "#": {
-      "item": "regius:sphagnum_moss"
+      "item": "regius:dried_sphagnum_moss"
     }
   },
   "pattern": [
@@ -12,6 +12,7 @@
     "###"
   ],
   "result": {
-    "id": "regius:sphagnum_moss_block"
+    "count": 1,
+    "id": "regius:dried_sphagnum_moss_block"
   }
 }

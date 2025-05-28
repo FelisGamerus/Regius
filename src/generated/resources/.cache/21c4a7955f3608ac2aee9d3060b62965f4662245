@@ -1,0 +1,4 @@
+// 1.21.1	2025-05-26T20:51:21.9851836	Tags for minecraft:block mod id regius
+8fa9d5dee0394b855f1f14617a4eb37a52de9757 data/minecraft/tags/block/dirt.json
+95820575108ed853c53d5c9802526532a1c9f209 data/minecraft/tags/block/mineable/axe.json
+770d66afecdb3210c953c31378c18cb417300fef data/minecraft/tags/block/mineable/hoe.json

@@ -1,12 +1,13 @@
 {
   "type": "minecraft:smelting",
-  "category": "misc",
+  "category": "blocks",
   "cookingtime": 200,
   "experience": 0.15,
   "ingredient": {
     "item": "regius:sphagnum_moss"
   },
   "result": {
+    "count": 1,
     "id": "regius:dried_sphagnum_moss"
   }
 }

@@ -1,0 +1,16 @@
+{
+  "values": {
+    "regius:dried_sphagnum_moss": {
+      "burn_time": 100
+    },
+    "regius:dried_sphagnum_moss_block": {
+      "burn_time": 300
+    },
+    "regius:hollow_oak_log": {
+      "burn_time": 300
+    },
+    "regius:hollow_stripped_oak_log": {
+      "burn_time": 300
+    }
+  }
+}
