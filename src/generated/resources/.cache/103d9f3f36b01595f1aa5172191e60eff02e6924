@@ -1,0 +1,4 @@
+// 1.21.1	2025-05-27T22:39:45.6064367	Registries
+c3259b38190a06afe4aaaf6beafa5caf30b71081 data/regius/neoforge/biome_modifier/add_sphagnum_moss.json
+0229287d897024a42c4e21aa87db85a984af6e07 data/regius/worldgen/configured_feature/sphagnum_moss.json
+3b6fb55518f4a8778e804e2f72b134b771b156e2 data/regius/worldgen/placed_feature/sphagnum_moss_placed.json

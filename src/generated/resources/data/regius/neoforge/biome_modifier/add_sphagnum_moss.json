@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "minecraft:swamp",
+  "features": "regius:sphagnum_moss_placed",
+  "step": "vegetal_decoration"
+}
