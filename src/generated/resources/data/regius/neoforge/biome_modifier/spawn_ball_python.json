@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "minecraft:savanna",
+  "spawners": {
+    "type": "regius:ball_python",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 20
+  }
+}

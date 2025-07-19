@@ -14,6 +14,7 @@ public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, Regius.MOD_ID);
 
+    //Change CREATURE to AMBIENT? Tropical-fish like spawning for finding new morphs
     public static final Supplier<EntityType<BallPythonEntity>> BALL_PYTHON =
             ENTITY_TYPES.register("ball_python", () -> EntityType.Builder.of(BallPythonEntity::new, MobCategory.CREATURE)
                     .sized(0.7f, 0.25f).build("ball_python"));
