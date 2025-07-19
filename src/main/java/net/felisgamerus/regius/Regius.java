@@ -1,10 +1,13 @@
 package net.felisgamerus.regius;
 
 import net.felisgamerus.regius.block.ModBlocks;
+import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.entity.client.BallPythonRenderer;
 import net.felisgamerus.regius.item.ModCreativeModeTabs;
 import net.felisgamerus.regius.item.ModItems;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.block.ComposterBlock;
@@ -47,6 +50,7 @@ public class Regius {
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        ModEntities.register(modEventBus);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
@@ -84,6 +88,7 @@ public class Regius {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+            EntityRenderers.register(ModEntities.BALL_PYTHON.get(), BallPythonRenderer::new);
         }
     }
 }

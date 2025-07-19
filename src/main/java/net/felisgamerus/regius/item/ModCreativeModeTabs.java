@@ -18,6 +18,8 @@ public class ModCreativeModeTabs {
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.SPHAGNUM_MOSS.get()))
                     .title(Component.translatable("creativetab.regius.regius"))
                     .displayItems((itemDisplayerParameters, output) -> {
+                        output.accept(ModItems.BALL_PYTHON_SPAWN_EGG);
+
                         output.accept(ModItems.SPHAGNUM_MOSS);
                         output.accept(ModItems.DRIED_SPHAGNUM_MOSS);
 

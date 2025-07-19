@@ -2,15 +2,22 @@ package net.felisgamerus.regius.item;
 
 import net.felisgamerus.regius.Regius;
 import net.felisgamerus.regius.block.ModBlocks;
+import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.item.custom.FuelBlockItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Regius.MOD_ID);
+
+    //Misc
+    public static final DeferredItem<Item> BALL_PYTHON_SPAWN_EGG = ITEMS.register("ball_python_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.BALL_PYTHON, 0x5c3b23, 0xbd9a5b,
+                new Item.Properties()));
 
     //Sphagnum plants
     public static final DeferredItem<Item> SPHAGNUM_MOSS = ITEMS.register("sphagnum_moss",
