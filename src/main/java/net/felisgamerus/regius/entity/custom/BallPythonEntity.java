@@ -3,25 +3,20 @@ package net.felisgamerus.regius.entity.custom;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
@@ -32,16 +27,13 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Bucketable;
-import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -49,12 +41,10 @@ import org.joml.Vector3d;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable {
@@ -65,7 +55,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     public final double[][] ringBuffer = new double[64][3];
 
     LocusMap ballPythonGenes = new LocusMap();
-    ArrayList<String> LOCI_REFERENCE = ballPythonGenes.getLociArray();
+    ArrayList<String> MORPH_REFERENCE = ballPythonGenes.getLociArray();
 
     public boolean isPushedByFluid() {
         return false;
@@ -100,6 +90,25 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         for (int i = 0; i < this.MULTIPART_COUNT; i++) {
             this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
         }
+    }
+
+    //SPAWNING
+    @javax.annotation.Nullable
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
+        //1 in CHANCE_FOR_NOT_NORMAL chance for a spawned ball python to have a special morph
+        //TODO: Make CHANCE_FOR_NOT_NORMAL configurable
+        final int CHANCE_FOR_NOT_NORMAL = 10;
+        Random notNormalSeed = new Random();
+        if (notNormalSeed.nextInt(CHANCE_FOR_NOT_NORMAL) == 0) {
+            //Selects a morph randomly out of all the morphs
+            Random morphSeed = new Random();
+            String morph = MORPH_REFERENCE.get(morphSeed.nextInt(MORPH_REFERENCE.size()));
+            this.setGenotype(morph);
+        }
+        if (spawnGroupData == null) {
+            spawnGroupData = new AgeableMob.AgeableMobGroupData(0.2F);
+        }
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
     //DATA
@@ -372,8 +381,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         LocusMap parent0Genes = createGenesFromGenotype(parent0.getGenotype());
         LocusMap parent1Genes = createGenesFromGenotype(parent1.getGenotype());
 
-        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
-            String locusName = LOCI_REFERENCE.get(i);
+        for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
+            String locusName = MORPH_REFERENCE.get(i);
             if (this.random.nextBoolean()) {
                 babyGenes.genes.get(locusName).setAllele0(parent0Genes.genes.get(locusName).getAllele0());
             } else {
@@ -381,8 +390,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
             }
         }
 
-        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
-            String locusName = LOCI_REFERENCE.get(i);
+        for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
+            String locusName = MORPH_REFERENCE.get(i);
             if (this.random.nextBoolean()) {
                 babyGenes.genes.get(locusName).setAllele1(parent1Genes.genes.get(locusName).getAllele0());
             } else {
@@ -440,8 +449,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         ArrayList<String> allTraits = new ArrayList<>();
         String genotype = "normal";
 
-        for (int i = 0; i < LOCI_REFERENCE.size(); i++) {
-            String locusName = LOCI_REFERENCE.get(i);
+        for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
+            String locusName = MORPH_REFERENCE.get(i);
             int allele0Value = genes.getAllele0(locusName);
             int allele1Value = genes.getAllele1(locusName);
             boolean notNormal = false;
