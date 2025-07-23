@@ -9,10 +9,6 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class FlammableHollowLog extends HollowLog implements SimpleWaterloggedBlock {
 
-    public FlammableHollowLog(Properties properties) {
-        super(properties);
-    }
-
     public FlammableHollowLog(Properties properties, Boolean isStripped, Block strippedLog) {
         super(properties, isStripped, strippedLog);
     }

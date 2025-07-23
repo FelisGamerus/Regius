@@ -1,0 +1,8 @@
+{
+    "parent": "regius:block/hollow_log",
+    "textures": {
+		"sideouter": "block/stripped_cherry_log",
+        "sideinner": "block/stripped_cherry_log",
+        "top": "block/stripped_cherry_log_top"
+    }
+}

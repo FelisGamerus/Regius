@@ -16,6 +16,24 @@
   "block.regius.dried_sphagnum_moss_block": "Dried Sphagnum Moss Block",
 
   "block.regius.hollow_oak_log": "Hollow Oak Log",
-  "block.regius.hollow_stripped_oak_log": "Stripped Hollow Oak Log"
+  "block.regius.hollow_stripped_oak_log": "Stripped Hollow Oak Log",
+  "block.regius.hollow_spruce_log": "Hollow Spruce Log",
+  "block.regius.hollow_stripped_spruce_log": "Stripped Hollow Spruce Log",
+  "block.regius.hollow_birch_log": "Hollow Birch Log",
+  "block.regius.hollow_stripped_birch_log": "Stripped Hollow Birch Log",
+  "block.regius.hollow_jungle_log": "Hollow Jungle Log",
+  "block.regius.hollow_stripped_jungle_log": "Stripped Hollow Jungle Log",
+  "block.regius.hollow_acacia_log": "Hollow Acacia Log",
+  "block.regius.hollow_stripped_acacia_log": "Stripped Hollow Acacia Log",
+  "block.regius.hollow_dark_oak_log": "Hollow Dark Oak Log",
+  "block.regius.hollow_stripped_dark_oak_log": "Stripped Hollow Dark Oak Log",
+  "block.regius.hollow_mangrove_log": "Hollow Mangrove Log",
+  "block.regius.hollow_stripped_mangrove_log": "Stripped Hollow Mangrove Log",
+  "block.regius.hollow_cherry_log": "Hollow Cherry Log",
+  "block.regius.hollow_stripped_cherry_log": "Stripped Hollow Cherry Log",
+  "block.regius.hollow_crimson_stem": "Hollow Crimson Stem",
+  "block.regius.hollow_stripped_crimson_stem": "Stripped Hollow Crimson Stem",
+  "block.regius.hollow_warped_stem": "Hollow Warped Stem",
+  "block.regius.hollow_stripped_warped_stem": "Stripped Hollow Warped Stem"
 
 }

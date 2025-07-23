@@ -28,11 +28,6 @@ public class HollowLog extends RotatedPillarBlock implements SimpleWaterloggedBl
     private Block strippedLog; // = ModBlocks.STRIPPED_OAK_HOLLOW_LOG.get().defaultBlockState(); <- When this is uncommented it crashes for some reason
     private boolean isStripped = true;
 
-    public HollowLog(Properties properties) {
-        super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(AXIS, Direction.Axis.Y));
-    }
-
     public HollowLog(Properties properties, Boolean pIsStripped, Block pStrippedLog) {
         super(properties);
         this.strippedLog = pStrippedLog;

@@ -21,7 +21,25 @@ public class ModBlockTagProvider extends BlockTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
         tag(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.HOLLOW_OAK_LOG.get())
-                .add(ModBlocks.HOLLOW_STRIPPED_OAK_LOG.get());
+                .add(ModBlocks.HOLLOW_STRIPPED_OAK_LOG.get())
+                .add(ModBlocks.HOLLOW_SPRUCE_LOG.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_SPRUCE_LOG.get())
+                .add(ModBlocks.HOLLOW_BIRCH_LOG.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_BIRCH_LOG.get())
+                .add(ModBlocks.HOLLOW_JUNGLE_LOG.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_JUNGLE_LOG.get())
+                .add(ModBlocks.HOLLOW_ACACIA_LOG.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_ACACIA_LOG.get())
+                .add(ModBlocks.HOLLOW_DARK_OAK_LOG.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_DARK_OAK_LOG.get())
+                .add(ModBlocks.HOLLOW_MANGROVE_LOG.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_MANGROVE_LOG.get())
+                .add(ModBlocks.HOLLOW_CHERRY_LOG.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_CHERRY_LOG.get())
+                .add(ModBlocks.HOLLOW_CRIMSON_STEM.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_CRIMSON_STEM.get())
+                .add(ModBlocks.HOLLOW_WARPED_STEM.get())
+                .add(ModBlocks.HOLLOW_STRIPPED_WARPED_STEM.get());
 
         tag(BlockTags.MINEABLE_WITH_HOE)
                 .add(ModBlocks.SPHAGNUM_MOSS.get())

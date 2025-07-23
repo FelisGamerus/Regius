@@ -1,6 +1,24 @@
 {
   "values": [
     "regius:hollow_oak_log",
-    "regius:hollow_stripped_oak_log"
+    "regius:hollow_stripped_oak_log",
+    "regius:hollow_spruce_log",
+    "regius:hollow_stripped_spruce_log",
+    "regius:hollow_birch_log",
+    "regius:hollow_stripped_birch_log",
+    "regius:hollow_jungle_log",
+    "regius:hollow_stripped_jungle_log",
+    "regius:hollow_acacia_log",
+    "regius:hollow_stripped_acacia_log",
+    "regius:hollow_dark_oak_log",
+    "regius:hollow_stripped_dark_oak_log",
+    "regius:hollow_mangrove_log",
+    "regius:hollow_stripped_mangrove_log",
+    "regius:hollow_cherry_log",
+    "regius:hollow_stripped_cherry_log",
+    "regius:hollow_crimson_stem",
+    "regius:hollow_stripped_crimson_stem",
+    "regius:hollow_warped_stem",
+    "regius:hollow_stripped_warped_stem"
   ]
 }

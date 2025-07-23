@@ -24,6 +24,24 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.DRIED_SPHAGNUM_MOSS_BLOCK.get());
         dropSelf(ModBlocks.HOLLOW_OAK_LOG.get());
         dropSelf(ModBlocks.HOLLOW_STRIPPED_OAK_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_SPRUCE_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_SPRUCE_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_BIRCH_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_BIRCH_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_JUNGLE_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_JUNGLE_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_ACACIA_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_ACACIA_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_DARK_OAK_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_DARK_OAK_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_MANGROVE_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_MANGROVE_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_CHERRY_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_CHERRY_LOG.get());
+        dropSelf(ModBlocks.HOLLOW_CRIMSON_STEM.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_CRIMSON_STEM.get());
+        dropSelf(ModBlocks.HOLLOW_WARPED_STEM.get());
+        dropSelf(ModBlocks.HOLLOW_STRIPPED_WARPED_STEM.get());
     }
 
     @Override

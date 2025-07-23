@@ -1,0 +1,8 @@
+{
+    "parent": "regius:block/hollow_log",
+    "textures": {
+		"sideouter": "block/warped_stem",
+        "sideinner": "block/stripped_warped_stem",
+        "top": "block/warped_stem_top"
+    }
+}
