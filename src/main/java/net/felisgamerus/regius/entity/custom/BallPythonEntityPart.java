@@ -15,13 +15,13 @@ import net.neoforged.neoforge.entity.PartEntity;
 import javax.annotation.Nullable;
 import java.util.List;
 
-//Mostly copied from Untamed Wilds
+//Code pulled and modified from Untamed Wilds and Alex's Mobs
 public class BallPythonEntityPart extends PartEntity<BallPythonEntity> {
 
     private final EntityDimensions size;
 
-    public BallPythonEntityPart(BallPythonEntity pParent, float sizeX, float sizeY) {
-        super(pParent);
+    public BallPythonEntityPart(BallPythonEntity parent, float sizeX, float sizeY) {
+        super(parent);
         this.size = EntityDimensions.scalable(sizeX, sizeY);
         this.refreshDimensions();
     }
@@ -33,18 +33,18 @@ public class BallPythonEntityPart extends PartEntity<BallPythonEntity> {
         }
     }
 
+    //This method currently does not work and I cannot figure out how to get it to work
     @Override
-    public InteractionResult interact(Player pPlayer, InteractionHand pHand) {
-        //System.out.println("Passing interaction by " + pPlayer.toString() + " using " + pHand.toString() + " at " + System.currentTimeMillis() + "to parent...");
-        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+    public InteractionResult interact(Player player, InteractionHand hand) {
+        ItemStack itemstack = player.getItemInHand(hand);
         if (itemstack.getItem() == Items.BUCKET) {
             return InteractionResult.PASS; //BPEntityParts can be bucketed, but create nothing when the resulting ball python bucket is used. Temporary until I can work out a fix
-        } else return this.getParent().mobInteract(pPlayer, pHand);
+        } else return this.getParent().mobInteract(player, hand);
     }
 
+    //This method currently does not work and I cannot figure out how to get it to work
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        //System.out.println("Child hitbox hurt by " + source.toString() + " for " + amount + " at " + System.currentTimeMillis());
         return !this.isInvulnerableTo(source) && this.getParent().attackEntityPartFrom(this, source, amount);
     }
 

@@ -1,11 +1,17 @@
 package net.felisgamerus.regius.item.custom;
 
 import com.mojang.serialization.MapCodec;
+import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.entity.custom.BallPythonEntity;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
+import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -33,9 +39,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class BallPythonBucketItem extends BucketItem {
-    //private static final MapCodec<TropicalFish.Variant> VARIANT_FIELD_CODEC;
     private final EntityType<?> type;
     private final SoundEvent emptySound;
 
@@ -102,57 +111,4 @@ public class BallPythonBucketItem extends BucketItem {
         }
 
     }
-
-    /*private EntityType<?> entityType() {
-        return this.entityType.get();
-    }*/
-
-    //Unused -- Add later when ported to NeoForge
-    /*public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
-        super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
-        System.out.println("appendHoverText called by " + pStack.hashCode());
-        if (this.entityType() == ModEntities.BALL_PYTHON.get()) {
-            System.out.println("appending hover text...");
-            CompoundTag compoundtag = pStack.getTag();
-            //System.out.println("compoundtag tagType: " + compoundtag.getTagType("Genotype"));
-            if (compoundtag != null && compoundtag.contains("Genotype", 3)) {
-                System.out.println("Getting phenotype...");
-                String genotype = compoundtag.getString("Genotype");
-                ChatFormatting[] phenotypeFormat = new ChatFormatting[]{ChatFormatting.ITALIC, ChatFormatting.GRAY};
-                MutableComponent phenotypeList = convertGenotypeToPhenotype(genotype);
-
-                phenotypeList.withStyle(phenotypeFormat);
-                pTooltipComponents.add(phenotypeList);
-            } else {
-                ChatFormatting[] testFormat = new ChatFormatting[]{ChatFormatting.ITALIC, ChatFormatting.GRAY};
-                MutableComponent testComponent = Component.translatable("test");
-                testComponent.withStyle(testFormat);
-                pTooltipComponents.add(testComponent);
-            }
-        }
-    }
-
-    public MutableComponent convertGenotypeToPhenotype(String genotype) {
-        System.out.println("genoToPheno called.");
-        MutableComponent phenotype = Component.translatable("normal");
-        ArrayList<String> traitList = new ArrayList<>(Arrays.asList(genotype.split("_")));
-        for (int i = 0; i < traitList.size(); i++) {
-            String trait = traitList.get(i);
-            if (trait.endsWith(".het")) { //Checks if the trait is het recessive. True = skip
-                trait = null;
-            } else if (trait.endsWith(".super")) { //Checks if the trait is homo dominant. True = no longer super
-                String locus = trait.substring(0, (trait.length() - 6));
-                if (this.geneReference.getLocusType(locus).equals("dominant")) {
-                    trait = locus;
-                }
-            }
-            if (trait != null) {
-                if (phenotype.equals("normal")) {
-                    phenotype = Component.translatable(trait);
-                } else {
-                    phenotype.append(", ").append(Component.translatable(trait));
-                }
-            }
-        } return phenotype;
-    }*/
 }

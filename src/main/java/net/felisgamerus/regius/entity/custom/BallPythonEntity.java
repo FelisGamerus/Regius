@@ -75,6 +75,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.ballpython.idle");
     protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.ballpython.walk");
+    protected static final RawAnimation BALL = RawAnimation.begin().thenLoop("animation.ballpython.ball");
     protected static final RawAnimation TONGUE = RawAnimation.begin().thenPlay("animation.ballpython.tongue");
 
     @Override
@@ -112,7 +113,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     //DATA
-    //Thanks to Wyrmroost for helping me figure out string-based variants
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
 
@@ -139,7 +139,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         setGenotype(genotype);
     }
 
-    //ANIMATIONS - Many thanks to Naturalist for the source code
+    //ANIMATIONS
+    //Code pulled from Naturalist
     private <E extends BallPythonEntity> PlayState predicate(final AnimationState<E> event) {
         if (event.isMoving()) {
             event.getController().setAnimation(WALK);
@@ -253,7 +254,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return DryBucketable.bucketMobPickup(player, hand, this).orElse(super.mobInteract(player, hand));
     }
 
-    //MULTIPARTS - mostly pulled from Untamed Wilds
+    //MULTIPARTS
+    //Code pulled and modified from Untamed Wilds, may have originally been from Alex's Mobs but I have been unable to confirm
 
     @Override
     public boolean isMultipartEntity() {
@@ -265,14 +267,13 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return this.ballPythonParts;
     }
 
+    //This method currently does not work and I cannot figure out how to get it to work
     public boolean attackEntityPartFrom(BallPythonEntityPart ballPythonPart, DamageSource source, float amount) {
-        //System.out.println("Parent hurt from child by " + source.toString() + " for " + amount + " at " + System.currentTimeMillis());
         return this.hurt(source, amount);
     }
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
-        //System.out.println("Ball python hurt by " + pSource.toString() + " for " + pAmount + " at " + System.currentTimeMillis());
         return super.hurt(pSource, pAmount);
     }
 
@@ -374,7 +375,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return babySnake;
     }
 
-    //Getting both genes from parent0??
     public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
         //Gets the genes of the baby ball python
         LocusMap babyGenes = new LocusMap();
@@ -419,25 +419,30 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         this.ballPythonGenes = givenLocusMap;
     }
 
+    public static String getGeneTranslatable (String gene) {
+        return "entity.regius.ball_python." + gene;
+    }
+
     //Converts a ball python's genotype to its visible phenotype
     public String convertGenotypeToPhenotype (String genotype) {
+        //System.out.println("### Converting " + genotype);
         String phenotype = "normal";
-        ArrayList<String> traitList = new ArrayList<>(Arrays.asList(genotype.split("_")));
-        for (int i = 0; i < traitList.size(); i++) {
-            String trait = traitList.get(i);
-            if (trait.endsWith(".het")) { //Checks if the trait is het recessive. True = skip
-                trait = null;
-            } else if (trait.endsWith(".super")) { //Checks if the trait is homo dominant. True = no longer super
-                String locus = trait.substring(0, (trait.length() - 6));
+        ArrayList<String> morphList = new ArrayList<>(Arrays.asList(genotype.split("_")));
+        for (int i = 0; i < morphList.size(); i++) {
+            String morph = morphList.get(i);
+            if (morph.endsWith("-het")) { //Checks if the morph is het recessive. True = skip
+                morph = null;
+            } else if (morph.endsWith("-super")) { //Checks if the morph is homo dominant. True = no longer super
+                String locus = morph.substring(0, (morph.length() - 6));
                 if (this.ballPythonGenes.getLocusType(locus).equals("dominant")) {
-                    trait = locus;
+                    morph = locus;
                 }
             }
-            if (trait != null) {
+            if (morph != null) {
                 if (phenotype.equals("normal")) {
-                    phenotype = trait;
+                    phenotype = morph;
                 } else {
-                    phenotype += "_" + trait;
+                    phenotype += "_" + morph;
                 }
             }
         } return phenotype;
@@ -446,7 +451,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     public String getGenotypeString(LocusMap genes) {
         //aka the advanced (adv) reader
         //Returns a string of every trait of a Snake, visible or not (So yes het albinos). This one's mainly for debug purposes
-        ArrayList<String> allTraits = new ArrayList<>();
+        ArrayList<String> allMorphs = new ArrayList<>();
         String genotype = "normal";
 
         for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
@@ -454,12 +459,10 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
             int allele0Value = genes.getAllele0(locusName);
             int allele1Value = genes.getAllele1(locusName);
             boolean notNormal = false;
-            //boolean dominantGeneExpressed = false;
             boolean isCodominantHeterozygous = false;
             boolean isHomozygous = false;
 
             if ((allele0Value != allele1Value) || (allele0Value != 0)) {notNormal = true;}
-            //if ((allele0Value == 1) || (allele1Value == 1)) {dominantGeneExpressed = true;}
             if ((allele0Value == 1) ^ (allele1Value == 1)) {isCodominantHeterozygous = true;}
             if ((allele0Value == 1) && (allele1Value == 1)) {isHomozygous = true;}
 
@@ -468,31 +471,31 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
                     case "dominant":
                     case "codominant":
                         if (isCodominantHeterozygous) {
-                            allTraits.add(locusName);
+                            allMorphs.add(locusName);
                         } else if (isHomozygous) {
-                            locusName = locusName + ".super";
-                            allTraits.add(locusName);
+                            locusName = locusName + "-super";
+                            allMorphs.add(locusName);
                         }
                         break;
                     case "recessive":
                         if (isCodominantHeterozygous) {
-                            locusName = locusName + ".het";
-                            allTraits.add(locusName);
+                            locusName = locusName + "-het";
+                            allMorphs.add(locusName);
                         } else if (isHomozygous) {
-                            allTraits.add(locusName);
+                            allMorphs.add(locusName);
                         }
                         break;
                 }
             }
         }
 
-        Collections.sort(allTraits);
-        for (int i = 0; i < allTraits.size(); i++) {
-            String trait = allTraits.get(i);
+        Collections.sort(allMorphs);
+        for (int i = 0; i < allMorphs.size(); i++) {
+            String morph = allMorphs.get(i);
             if (i == 0) {
-                genotype = trait;
+                genotype = morph;
             } else {
-                genotype += "_" + trait;
+                genotype += "_" + morph;
             }
         }
         return genotype;
@@ -501,27 +504,27 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     public LocusMap createGenesFromGenotype(String genotype) {
         //Returns a LocusMap created from a given genotype
         LocusMap createdGenes = new LocusMap();
-        ArrayList<String> traitList = new ArrayList<>(Arrays.asList(genotype.split("_")));
-        Collections.sort(traitList);
-        for (int i = 0; i < traitList.size(); i++) {
+        ArrayList<String> morphList = new ArrayList<>(Arrays.asList(genotype.split("_")));
+        Collections.sort(morphList);
+        for (int i = 0; i < morphList.size(); i++) {
             Boolean isHomozygous = false;
-            String trait = traitList.get(i);
-            if (trait.equals("normal")) {
+            String morph = morphList.get(i);
+            if (morph.equals("normal")) {
                 break;
             }
-            if (trait != null) {
-                if (trait.endsWith(".het")) { //Checks if it's het recessive
-                    trait = trait.substring(0, (trait.length() - 4));
-                } else if (trait.endsWith(".super")) { //Checks if it's homo dominant/co-dominant
-                    trait = trait.substring(0, (trait.length() - 6));
+            if (morph != null) {
+                if (morph.endsWith("-het")) { //Checks if it's het recessive
+                    morph = morph.substring(0, (morph.length() - 4));
+                } else if (morph.endsWith("-super")) { //Checks if it's homo dominant/co-dominant
+                    morph = morph.substring(0, (morph.length() - 6));
                     isHomozygous = true;
-                } else if (this.ballPythonGenes.getLocusType(trait).equals("recessive")) { //Checks if it's homo recessive
+                } else if (this.ballPythonGenes.getLocusType(morph).equals("recessive")) { //Checks if it's homo recessive
                     isHomozygous = true;
                 }
 
-                createdGenes.genes.get(trait).setAllele0(1); //Adds the trait to the new genes
+                createdGenes.genes.get(morph).setAllele0(1); //Adds the morph to the new genes
                 if (isHomozygous) {
-                    createdGenes.genes.get(trait).setAllele1(1); //Adds it again if homo
+                    createdGenes.genes.get(morph).setAllele1(1); //Adds it again if homo
                 }
             }
         }
