@@ -22,7 +22,7 @@ public class ModItems {
             () -> new DeferredSpawnEggItem(ModEntities.BALL_PYTHON, 0x5c3b23, 0xbd9a5b,
                 new Item.Properties()));
     public static final DeferredItem<Item> BALL_PYTHON_BUCKET = ITEMS.register("ball_python_bucket",
-            () -> new BallPythonBucketItem(ModEntities.BALL_PYTHON.get(),Fluids.EMPTY, SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1)));
+            () -> new BallPythonBucketItem(ModEntities.BALL_PYTHON.get(), Fluids.EMPTY, SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1)));
 
     //SPHAGNUM PLANTS
     public static final DeferredItem<Item> SPHAGNUM_MOSS = ITEMS.register("sphagnum_moss",
