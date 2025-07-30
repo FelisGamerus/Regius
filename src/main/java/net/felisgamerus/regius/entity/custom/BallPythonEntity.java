@@ -1,5 +1,7 @@
 package net.felisgamerus.regius.entity.custom;
 
+import com.mojang.serialization.Codec;
+import net.felisgamerus.regius.entity.BallPythonPhenotype;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
@@ -49,13 +51,15 @@ import java.util.function.Predicate;
 
 public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable {
 
+    public static final String BUCKET_PHENOTYPE_TAG = "BucketPhenotypeTag";
+
     public final BallPythonEntityPart[] ballPythonParts;
     public final int MULTIPART_COUNT = 2;
     public int ringBufferIndex = -1;
     public final double[][] ringBuffer = new double[64][3];
 
     LocusMap ballPythonGenes = new LocusMap();
-    ArrayList<String> MORPH_REFERENCE = ballPythonGenes.getLociArray();
+    static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
 
     public boolean isPushedByFluid() {
         return false;
@@ -91,6 +95,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         for (int i = 0; i < this.MULTIPART_COUNT; i++) {
             this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
         }
+        fillPhenotypeIdMap();
     }
 
     //SPAWNING
@@ -115,12 +120,14 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     //DATA
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Integer> PHENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.INT);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(FROM_BUCKET, false);
         builder.define(GENOTYPE, "normal");
+        builder.define(PHENOTYPE, 0);
     }
 
     @Override
@@ -128,6 +135,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putBoolean("FromBucket", this.fromBucket());
         compoundTag.putString("Genotype", this.getGenotype());
+        compoundTag.putInt("Phenotype", this.getPhenotypeId());
     }
 
     @Override
@@ -135,8 +143,93 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         super.readAdditionalSaveData(compoundTag);
         this.setFromBucket(compoundTag.getBoolean("FromBucket"));
 
+        this.entityData.set(PHENOTYPE, compoundTag.getInt("Phenotype"));
+
+        //Copied from Wyrmroost
         String genotype = compoundTag.contains("Genotype") ? compoundTag.getString("Genotype") : "normal";
         setGenotype(genotype);
+    }
+
+    //FromBucket
+    @Override
+    public boolean fromBucket() {
+        return this.entityData.get(FROM_BUCKET);
+    }
+
+    @Override
+    public void setFromBucket(boolean pFromBucket) {
+        this.entityData.set(FROM_BUCKET, pFromBucket);
+    }
+
+    //Genotype
+    public void setGenotype(String genotype) {
+        this.setGenes(createGenesFromGenotype(genotype));
+        if (!(getGenotypeString(this.ballPythonGenes).equals("normal"))) {
+            this.entityData.set(GENOTYPE, genotype);
+        } else {
+            this.entityData.set(GENOTYPE, "normal");
+        }
+
+        this.setPhenotype(BallPythonPhenotype.byId(phenotypeIds.get(convertGenotypeToPhenotype(genotype))));
+    }
+
+    public String getGenotype () {
+        return this.entityData.get(GENOTYPE);
+    }
+
+    //Phenotype
+    private int getPhenotypeId() {
+        return this.entityData.get(PHENOTYPE);
+    }
+
+    public BallPythonPhenotype getPhenotype() {
+        return BallPythonPhenotype.byId(this.getPhenotypeId() & 255);
+    }
+
+    private void setPhenotype(BallPythonPhenotype phenotype) {
+        this.entityData.set(PHENOTYPE, phenotype.getId() & 255);
+    }
+
+    //PHENOTYPE STUFF
+    private static HashMap<String, Integer> phenotypeIds = new HashMap<>();
+
+    private void fillPhenotypeIdMap () {
+        phenotypeIds.put("normal", 0);
+        phenotypeIds.put("albino", 1);
+        phenotypeIds.put("pastel", 2);
+        phenotypeIds.put("pinstripe", 3);
+        phenotypeIds.put("pastel-super", 4);
+        phenotypeIds.put("pastel_pinstripe", 5);
+        phenotypeIds.put("pastel-super_pinstripe", 6);
+        phenotypeIds.put("albino_pastel", 7);
+        phenotypeIds.put("albino_pinstripe", 8);
+        phenotypeIds.put("albino_pastel-super", 9);
+        phenotypeIds.put("albino_pastel_pinstripe", 10);
+        phenotypeIds.put("albino_pastel-super_pinstripe", 11);
+    }
+
+    public static record GenotypeRecord(String genotype) {
+        public static final Codec<GenotypeRecord> CODEC;
+        static {
+            CODEC = Codec.STRING.xmap(GenotypeRecord::new, GenotypeRecord::getGenotype);
+        }
+
+        public GenotypeRecord(String genotype) {
+            this.genotype = genotype;
+        }
+
+        public String getGenotype() {
+            return this.genotype;
+        }
+
+        public String getPhenotype(String genotype) {
+            String phenotype = convertGenotypeToPhenotype(genotype);
+            return phenotype;
+        }
+
+        /*public BallPythonPhenotype getPhenotype() {
+            return BallPythonPhenotype.byId(this.phenotypeId);
+        }*/
     }
 
     //ANIMATIONS
@@ -210,21 +303,12 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     //BUCKETS
     @Override
-    public boolean fromBucket() {
-        return this.entityData.get(FROM_BUCKET);
-    }
-
-    @Override
-    public void setFromBucket(boolean pFromBucket) {
-        this.entityData.set(FROM_BUCKET, pFromBucket);
-    }
-
-    @Override
     public void saveToBucketTag(ItemStack stack) {
         Bucketable.saveDefaultDataToBucketTag(this, stack);
         CustomData.update(DataComponents.BUCKET_ENTITY_DATA, stack, compoundTag -> {
             compoundTag.putInt("Age", this.getAge());
             compoundTag.putString("Genotype", this.getGenotype());
+            compoundTag.putInt("BucketPhenotypeTag", this.getPhenotypeId());
         });
     }
 
@@ -249,6 +333,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return SoundEvents.BUCKET_FILL_AXOLOTL;
     }
 
+    //INTERACTIONS
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         return DryBucketable.bucketMobPickup(player, hand, this).orElse(super.mobInteract(player, hand));
@@ -375,7 +460,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return babySnake;
     }
 
-    public LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
+    public static LocusMap getBabyGenes (BallPythonEntity parent0, BallPythonEntity parent1) {
         //Gets the genes of the baby ball python
         LocusMap babyGenes = new LocusMap();
         LocusMap parent0Genes = createGenesFromGenotype(parent0.getGenotype());
@@ -383,7 +468,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
         for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
             String locusName = MORPH_REFERENCE.get(i);
-            if (this.random.nextBoolean()) {
+            if (parent0.random.nextBoolean()) {
                 babyGenes.genes.get(locusName).setAllele0(parent0Genes.genes.get(locusName).getAllele0());
             } else {
                 babyGenes.genes.get(locusName).setAllele0(parent0Genes.genes.get(locusName).getAllele1());
@@ -392,7 +477,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
         for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
             String locusName = MORPH_REFERENCE.get(i);
-            if (this.random.nextBoolean()) {
+            if (parent0.random.nextBoolean()) {
                 babyGenes.genes.get(locusName).setAllele1(parent1Genes.genes.get(locusName).getAllele0());
             } else {
                 babyGenes.genes.get(locusName).setAllele1(parent1Genes.genes.get(locusName).getAllele1());
@@ -402,30 +487,12 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     //GENETICS
-    public void setGenotype(String genotype) {
-        this.setGenes(createGenesFromGenotype(genotype));
-        if (!(getGenotypeString(this.ballPythonGenes).equals("normal"))) {
-            this.entityData.set(GENOTYPE, genotype);
-        } else {
-            this.entityData.set(GENOTYPE, "normal");
-        }
-    }
-
-    public String getGenotype () {
-        return this.entityData.get(GENOTYPE);
-    }
-
     public void setGenes (LocusMap givenLocusMap) {
         this.ballPythonGenes = givenLocusMap;
     }
 
-    public static String getGeneTranslatable (String gene) {
-        return "entity.regius.ball_python." + gene;
-    }
-
     //Converts a ball python's genotype to its visible phenotype
-    public String convertGenotypeToPhenotype (String genotype) {
-        //System.out.println("### Converting " + genotype);
+    public static String convertGenotypeToPhenotype (String genotype) {
         String phenotype = "normal";
         ArrayList<String> morphList = new ArrayList<>(Arrays.asList(genotype.split("_")));
         for (int i = 0; i < morphList.size(); i++) {
@@ -433,9 +500,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
             if (morph.endsWith("-het")) { //Checks if the morph is het recessive. True = skip
                 morph = null;
             } else if (morph.endsWith("-super")) { //Checks if the morph is homo dominant. True = no longer super
-                String locus = morph.substring(0, (morph.length() - 6));
-                if (this.ballPythonGenes.getLocusType(locus).equals("dominant")) {
-                    morph = locus;
+                String morphNoSuper = morph.substring(0, (morph.length() - 6));
+                if (LocusMap.checkType(morphNoSuper, "dominant")) {
+                    morph = morphNoSuper;
                 }
             }
             if (morph != null) {
@@ -448,9 +515,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         } return phenotype;
     }
 
-    public String getGenotypeString(LocusMap genes) {
-        //aka the advanced (adv) reader
-        //Returns a string of every trait of a Snake, visible or not (So yes het albinos). This one's mainly for debug purposes
+    //Returns a string of every trait of a Snake, visible or not (So yes het albinos)
+    public static String getGenotypeString(LocusMap genes) {
         ArrayList<String> allMorphs = new ArrayList<>();
         String genotype = "normal";
 
@@ -469,7 +535,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
             if (notNormal) {
                 switch (genes.getLocusType(locusName)) {
                     case "dominant":
-                    case "codominant":
+                    case "incompleteDominant":
                         if (isCodominantHeterozygous) {
                             allMorphs.add(locusName);
                         } else if (isHomozygous) {
@@ -501,8 +567,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return genotype;
     }
 
-    public LocusMap createGenesFromGenotype(String genotype) {
-        //Returns a LocusMap created from a given genotype
+    //Returns a LocusMap created from a given genotype
+    public static LocusMap createGenesFromGenotype(String genotype) {
         LocusMap createdGenes = new LocusMap();
         ArrayList<String> morphList = new ArrayList<>(Arrays.asList(genotype.split("_")));
         Collections.sort(morphList);
@@ -515,10 +581,10 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
             if (morph != null) {
                 if (morph.endsWith("-het")) { //Checks if it's het recessive
                     morph = morph.substring(0, (morph.length() - 4));
-                } else if (morph.endsWith("-super")) { //Checks if it's homo dominant/co-dominant
+                } else if (morph.endsWith("-super")) { //Checks if it's homo dominant/incomplete dominant
                     morph = morph.substring(0, (morph.length() - 6));
                     isHomozygous = true;
-                } else if (this.ballPythonGenes.getLocusType(morph).equals("recessive")) { //Checks if it's homo recessive
+                } else if (LocusMap.checkType(morph, "recessive")) { //Checks if it's homo recessive
                     isHomozygous = true;
                 }
 
