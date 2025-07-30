@@ -1,7 +1,6 @@
 package net.felisgamerus.regius.entity.custom;
 
 import com.mojang.serialization.Codec;
-import net.felisgamerus.regius.entity.BallPythonPhenotype;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
@@ -95,7 +94,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         for (int i = 0; i < this.MULTIPART_COUNT; i++) {
             this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
         }
-        fillPhenotypeIdMap();
     }
 
     //SPAWNING
@@ -135,7 +133,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putBoolean("FromBucket", this.fromBucket());
         compoundTag.putString("Genotype", this.getGenotype());
-        compoundTag.putInt("Phenotype", this.getPhenotypeId());
     }
 
     @Override
@@ -169,45 +166,13 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         } else {
             this.entityData.set(GENOTYPE, "normal");
         }
-
-        this.setPhenotype(BallPythonPhenotype.byId(phenotypeIds.get(convertGenotypeToPhenotype(genotype))));
     }
 
     public String getGenotype () {
         return this.entityData.get(GENOTYPE);
     }
 
-    //Phenotype
-    private int getPhenotypeId() {
-        return this.entityData.get(PHENOTYPE);
-    }
-
-    public BallPythonPhenotype getPhenotype() {
-        return BallPythonPhenotype.byId(this.getPhenotypeId() & 255);
-    }
-
-    private void setPhenotype(BallPythonPhenotype phenotype) {
-        this.entityData.set(PHENOTYPE, phenotype.getId() & 255);
-    }
-
-    //PHENOTYPE STUFF
-    private static HashMap<String, Integer> phenotypeIds = new HashMap<>();
-
-    private void fillPhenotypeIdMap () {
-        phenotypeIds.put("normal", 0);
-        phenotypeIds.put("albino", 1);
-        phenotypeIds.put("pastel", 2);
-        phenotypeIds.put("pinstripe", 3);
-        phenotypeIds.put("pastel-super", 4);
-        phenotypeIds.put("pastel_pinstripe", 5);
-        phenotypeIds.put("pastel-super_pinstripe", 6);
-        phenotypeIds.put("albino_pastel", 7);
-        phenotypeIds.put("albino_pinstripe", 8);
-        phenotypeIds.put("albino_pastel-super", 9);
-        phenotypeIds.put("albino_pastel_pinstripe", 10);
-        phenotypeIds.put("albino_pastel-super_pinstripe", 11);
-    }
-
+    //Needed for BallPythonBucketItem
     public static record GenotypeRecord(String genotype) {
         public static final Codec<GenotypeRecord> CODEC;
         static {
@@ -226,10 +191,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
             String phenotype = convertGenotypeToPhenotype(genotype);
             return phenotype;
         }
-
-        /*public BallPythonPhenotype getPhenotype() {
-            return BallPythonPhenotype.byId(this.phenotypeId);
-        }*/
     }
 
     //ANIMATIONS
@@ -308,7 +269,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         CustomData.update(DataComponents.BUCKET_ENTITY_DATA, stack, compoundTag -> {
             compoundTag.putInt("Age", this.getAge());
             compoundTag.putString("Genotype", this.getGenotype());
-            compoundTag.putInt("BucketPhenotypeTag", this.getPhenotypeId());
         });
     }
 
