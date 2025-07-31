@@ -5,7 +5,6 @@ import net.felisgamerus.regius.block.ModBlocks;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.item.custom.BallPythonBucketItem;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.Fluids;

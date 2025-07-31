@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "regius:item/sphagnum_moss"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "regius:bucket_phenotype": 0
+      },
+      "model": "regius:item/ball_python_bucket_normal"
+    },
+    {
+      "predicate": {
+        "regius:bucket_phenotype": 1
+      },
+      "model": "regius:item/ball_python_bucket_albino"
+    }
+  ]
+}

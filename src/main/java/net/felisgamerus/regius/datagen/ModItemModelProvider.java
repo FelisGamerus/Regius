@@ -15,7 +15,6 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         withExistingParent(ModItems.BALL_PYTHON_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
-        basicItem(ModItems.BALL_PYTHON_BUCKET.get());
 
         basicItem(ModItems.SPHAGNUM_MOSS.get());
         basicItem(ModItems.DRIED_SPHAGNUM_MOSS.get());

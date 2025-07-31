@@ -5,6 +5,7 @@ import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.entity.client.BallPythonRenderer;
 import net.felisgamerus.regius.item.ModCreativeModeTabs;
 import net.felisgamerus.regius.item.ModItems;
+import net.felisgamerus.regius.util.ModItemProperties;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -88,6 +89,7 @@ public class Regius {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+            ModItemProperties.addCustomItemProperties();
             EntityRenderers.register(ModEntities.BALL_PYTHON.get(), BallPythonRenderer::new);
         }
     }

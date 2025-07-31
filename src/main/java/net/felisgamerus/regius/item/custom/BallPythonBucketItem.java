@@ -1,15 +1,12 @@
 package net.felisgamerus.regius.item.custom;
 
 import com.mojang.serialization.MapCodec;
-import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.entity.custom.BallPythonEntity;
-import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
@@ -23,14 +20,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Bucketable;
-import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
@@ -39,19 +34,21 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class BallPythonBucketItem extends BucketItem {
     private final EntityType<?> type;
     private final SoundEvent emptySound;
+    private static final MapCodec<BallPythonEntity.GenotypeRecord> GENOTYPE_FIELD_CODEC;
 
     public BallPythonBucketItem(EntityType<?> type, Fluid content, SoundEvent emptySound, Item.Properties properties) {
         super(content, properties);
         this.type = type;
         this.emptySound = emptySound;
+    }
+
+    static {
+        GENOTYPE_FIELD_CODEC = BallPythonEntity.GenotypeRecord.CODEC.fieldOf("Genotype");
     }
 
     //Turns out you're not supposed to be able to empty an empty bucket
@@ -110,5 +107,60 @@ public class BallPythonBucketItem extends BucketItem {
             bucketable.setFromBucket(true);
         }
 
+    }
+
+    //HOVER TEXT
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        CustomData customdata = (CustomData)stack.getOrDefault(DataComponents.BUCKET_ENTITY_DATA, CustomData.EMPTY);
+        if (customdata.isEmpty()) {
+            return;
+        }
+
+        Optional<BallPythonEntity.GenotypeRecord> optional = customdata.read(GENOTYPE_FIELD_CODEC).result();
+        if (optional.isPresent()) {
+            BallPythonEntity.GenotypeRecord genotypeRecord = (BallPythonEntity.GenotypeRecord)optional.get();
+            String phenotype = genotypeRecord.getPhenotype(genotypeRecord.getGenotype());
+
+            ChatFormatting[] achatformatting = new ChatFormatting[]{ChatFormatting.ITALIC, ChatFormatting.GRAY};
+            tooltipComponents.add(getPhenotypeComponent(phenotype).withStyle(achatformatting));
+        }
+    }
+
+    private MutableComponent getPhenotypeComponent (String phenotype) {
+        MutableComponent toReturn = Component.translatable("entity.regius.ball_python.phenotype.normal");
+        //System.out.println("### " + toReturn.toString());
+        ArrayList<String> morphList = new ArrayList<>(Arrays.asList(phenotype.split("_")));
+        Collections.sort(morphList);
+        for (int i = 0; i < morphList.size(); i++) {
+            String morph = morphList.get(i);
+            //This is the best way I know to check if it is normal. "translation{key='entity.regius.ball_python.phenotype.normal', args=[]}" is what is printed out by the commented-out println method above.
+            if (toReturn.toString().equals("translation{key='entity.regius.ball_python.phenotype.normal', args=[]}")) {
+                toReturn = Component.translatable("entity.regius.ball_python.phenotype." + morph);
+            } else {
+                toReturn.append(", ").append(Component.translatable("entity.regius.ball_python.phenotype." + morph));
+            }
+        }
+        return toReturn;
+    }
+
+    //Returns the texture the bucket should use
+    //Higher priority/impact morphs (Such as albino) should be checked for first
+    public static Float getBucketPhenotype(ItemStack stack) {
+        CustomData customdata = (CustomData)stack.getOrDefault(DataComponents.BUCKET_ENTITY_DATA, CustomData.EMPTY);
+        Optional<BallPythonEntity.GenotypeRecord> optional = customdata.read(GENOTYPE_FIELD_CODEC).result();
+
+        if (optional.isPresent()) {
+            BallPythonEntity.GenotypeRecord genotypeRecord = (BallPythonEntity.GenotypeRecord)optional.get();
+            String phenotype = genotypeRecord.getPhenotype(genotypeRecord.getGenotype());
+            ArrayList<String> morphList = new ArrayList<>(Arrays.asList(phenotype.split("_")));
+            Collections.sort(morphList);
+            for (int i = 0; i < morphList.size(); i++) {
+                String morph = morphList.get(i);
+                if (morph.equals("albino")) {
+                    return 1f;
+                }
+            }
+        }
+        return 0f;
     }
 }

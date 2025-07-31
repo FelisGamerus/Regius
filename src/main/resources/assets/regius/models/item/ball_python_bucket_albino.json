@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "regius:item/ball_python_bucket"
+    "layer0": "regius:item/buckets/albino"
   }
 }

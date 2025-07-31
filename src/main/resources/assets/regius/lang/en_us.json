@@ -3,14 +3,17 @@
 
   "entity.regius.ball_python": "Ball Python",
 
+  "entity.regius.ball_python.phenotype.normal": "Normal",
+  "entity.regius.ball_python.phenotype.albino": "Albino",
+  "entity.regius.ball_python.phenotype.pastel": "Pastel",
+  "entity.regius.ball_python.phenotype.pastel-super": "Super pastel",
+  "entity.regius.ball_python.phenotype.pinstripe": "Pinstripe",
+
   "item.regius.ball_python_spawn_egg": "Ball Python Spawn Egg",
   "item.regius.ball_python_bucket": "Bucket of Ball Python",
 
   "item.regius.sphagnum_moss": "Sphagnum Moss",
   "item.regius.dried_sphagnum_moss": "Dried Sphagnum Moss",
-
-  "block.regius.sphagnum_moss": "Sphagnum Moss",
-  "block.regius.dried_sphagnum_moss": "Dried Sphagnum Moss",
 
   "block.regius.sphagnum_moss_block": "Sphagnum Moss Block",
   "block.regius.dried_sphagnum_moss_block": "Dried Sphagnum Moss Block",
