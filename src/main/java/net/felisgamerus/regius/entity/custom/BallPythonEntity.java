@@ -6,6 +6,7 @@ import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -49,9 +50,6 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable {
-
-    public static final String BUCKET_PHENOTYPE_TAG = "BucketPhenotypeTag";
-
     public final BallPythonEntityPart[] ballPythonParts;
     public final int MULTIPART_COUNT = 2;
     public int ringBufferIndex = -1;
@@ -139,8 +137,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     public void readAdditionalSaveData(CompoundTag compoundTag) {
         super.readAdditionalSaveData(compoundTag);
         this.setFromBucket(compoundTag.getBoolean("FromBucket"));
-
-        this.entityData.set(PHENOTYPE, compoundTag.getInt("Phenotype"));
 
         //Copied from Wyrmroost
         String genotype = compoundTag.contains("Genotype") ? compoundTag.getString("Genotype") : "normal";
