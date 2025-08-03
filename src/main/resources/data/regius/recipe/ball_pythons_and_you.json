@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "regius:sphagnum_moss"
+    }
+  ],
+  "result": {
+    "components": {
+      "patchouli:book": "regius:ball_pythons_and_you"
+    },
+    "count": 1,
+    "id": "patchouli:guide_book"
+  }
+}

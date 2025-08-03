@@ -1,0 +1,11 @@
+{
+  "name": "Ball Pythons and You",
+  "landing_text": "A guide to ball python genetics",
+  "version": 1,
+  "creative_tab": "regius:regius_tab",
+  "use_resource_pack": true,
+  "use_blocky_font": true,
+  "macros": {
+    "$(funfact)": "$(br2) $(8) $(o)"
+  }
+}
