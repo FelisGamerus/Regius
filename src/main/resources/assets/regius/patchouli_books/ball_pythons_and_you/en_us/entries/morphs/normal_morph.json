@@ -10,7 +10,7 @@
     {
       "type": "patchouli:image",
       "title": "Normal",
-      "images": ["regius:textures/patchouli_images/normal.png"],
+      "images": ["regius:textures/patchouli_images/morph_showcases/normal.png"],
       "text": "Type: Base $(funfact) This morph is also known as 'wild type' or, occasionally, 'classic'. $()"
     }
   ]
