@@ -95,6 +95,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     //SPAWNING
+    //A survey of 100 wild-spawned ball pythons says that the chance for a morph is actually closer to 6%
     @javax.annotation.Nullable
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
         //1 in CHANCE_FOR_NOT_NORMAL chance for a spawned ball python to have a special morph
