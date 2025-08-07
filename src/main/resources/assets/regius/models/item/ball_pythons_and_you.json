@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "regius:item/ball_pythons_and_you"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "4: Dominance Types",
+  "icon": "regius:textures/patchouli_images/icons/alleles.png",
+  "category": "regius:breeding_basics_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The dominance type of a morph determines how many alleles are needed for a python to have the morph, and whether or not homozygosity affects the appearance of the python."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Dominant",
+      "images": ["regius:textures/patchouli_images/punnett_square_dominant.png"],
+      "text": "Only 1 copy of an allele is required for a python to have the morph. Heterozygous and homozygous pythons look identical."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Incomplete Dominant",
+      "images": ["regius:textures/patchouli_images/punnett_square_incomplete_dominant.png"],
+      "text": "Only 1 copy of an allele is required for a python to have the morph, but homozygous pythons exhibit a distinct 'super form'."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Recessive",
+      "images": ["regius:textures/patchouli_images/punnett_square_recessive.png"],
+      "text": "2 alleles are required for a python to have the morph. Pythons that are heterozygous look identical to those that lack the genes for the morph entirely."
+    }
+  ]
+}

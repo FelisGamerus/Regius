@@ -1,0 +1,18 @@
+{
+  "name": "Pastel",
+  "icon": "regius:textures/patchouli_images/icons/morphs/pastel.png",
+  "category": "regius:morphs_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Head: Green eyes and blushing on the top.$(li)Body: Blushing in the dark areas and flames up the sides."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Pastel",
+      "images": ["regius:textures/patchouli_images/morph_showcases/pastel.png"],
+      "text": "Type: Incomplete dominant"
+    }
+  ]
+}

@@ -1,17 +1,18 @@
 {
   "name": "Normal",
-  "icon": "regius:textures/item/buckets/normal.png",
+  "icon": "regius:textures/patchouli_images/icons/morphs/normal.png",
   "category": "regius:morphs_category",
+  "read_by_default": true,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The normal morph is the default look for a ball python. $(br2) The body of a normal python is mostly light brown with a dark broken-up stripe down the spine and dark spots in the alien heads. The head is mostly dark brown with light stripes running through the eyes, and the belly is pale."
+      "text": "The normal morph is the default look for a ball python.$(br)$(li)Head: Mostly dark brown with lighter stripes running through the eyes.$(li)Body: Mostly light brown with a dark broken-up stripe down the spine and dark spots in the alien heads.$(li)Belly: Pale."
     },
     {
       "type": "patchouli:image",
       "title": "Normal",
       "images": ["regius:textures/patchouli_images/morph_showcases/normal.png"],
-      "text": "Type: Base $(funfact) This morph is also known as 'wild type' or, occasionally, 'classic'. $()"
+      "text": "Type: Base$(funfact)This morph is also known as 'wild type' or, occasionally, 'classic'.$()"
     }
   ]
 }

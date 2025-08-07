@@ -1,0 +1,12 @@
+{
+  "name": "Glossary",
+  "icon": "minecraft:knowledge_book",
+  "category": "regius:breeding_basics_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A glossary of ball python-related terms:$(br2)$(li)Alien heads: The patches on the side of a ball python, so named for their shape that often resembles two eyes and a strange head.$(li)Blushing: Lighter patches found in the dark areas of some morphs such as pastel.$(li)Flames: Blushing originating from the belly and travelling up the sides of the python."
+    }
+  ]
+}

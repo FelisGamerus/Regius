@@ -1,0 +1,16 @@
+{
+  "name": "1: Ball Pythons",
+  "icon": "regius:textures/patchouli_images/icons/morphs/normal.png",
+  "category": "regius:breeding_basics_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The ball python ($(o)Python regius$()) is a snake native to the savanna biome.$(br2)Ball pythons, when fully grown, reach 3.56 blocks in length, which is surprisingly still small enough to fit in an empty bucket."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "They will naturally hunt and kill nearby chickens and rabbits, and can be bred by feeding a pair of pythons raw rabbit meat.$(br2)Roughly 10% of ball pythons captured in the wild exhibit a unique color or pattern called a morph, which can be passed to their offspring."
+    }
+  ]
+}

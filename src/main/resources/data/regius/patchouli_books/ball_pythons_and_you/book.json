@@ -1,11 +1,13 @@
 {
   "name": "Ball Pythons and You",
-  "landing_text": "A guide to ball python genetics",
+  "landing_text": "A guide to ball python genetics.$(br2)If you are new to selective breeding, ball pythons, or both, it is recommended that you read through 'Breeding Basics'.",
   "version": 1,
   "creative_tab": "regius:regius_tab",
   "use_resource_pack": true,
   "use_blocky_font": true,
   "macros": {
     "$(funfact)": "$(br2) $(8) $(o)"
-  }
+  },
+  "model": "regius:ball_pythons_and_you",
+  "book_texture": "patchouli:textures/gui/book_gray.png"
 }

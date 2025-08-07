@@ -1,0 +1,28 @@
+{
+  "name": "2: Intro to Genetics",
+  "icon": "regius:textures/patchouli_images/icons/dna.png",
+  "category": "regius:breeding_basics_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Ball pythons can carry genes for abnormal traits which can be passed down from parent to offspring: these traits are called morphs.$(br2)Every morph except for normal has one of three dominance types: dominant, incomplete dominant, or recessive."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Intro to Genetics",
+      "images": ["regius:textures/patchouli_images/breeding.png"],
+      "text": "When two ball pythons are bred together, the offspring's appearances will vary depending on the morphs they inherit and those morphs' types."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A morph's dominance type is determined by how the number of alleles a python has affects its appearance. Alleles are variants of a gene that are represented by letters: capital letters for dominant alleles, lowercase letters for recessive alleles.$(br2)A snake is considered homozygous if it has two copies of an allele, and heterozygous if it has only one."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Zygosity",
+      "images": ["regius:textures/patchouli_images/breeding.png"],
+      "text": "In this example, the normal parent (AA) is homozygous dominant, the albino parent (aa) is homozygous recessive, and the child (Aa) is heterozygous."
+    }
+  ]
+}

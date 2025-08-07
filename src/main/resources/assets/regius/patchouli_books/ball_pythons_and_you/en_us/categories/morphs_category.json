@@ -1,5 +1,5 @@
 {
   "name": "Morphs",
-  "description": "All the different genetic colors and patterns of a ball python",
-  "icon": "regius:textures/item/buckets/albino.png"
+  "description": "All the basic genetic colors and patterns of a ball python.",
+  "icon": "regius:textures/patchouli_images/icons/morphs/pinstripe.png"
 }

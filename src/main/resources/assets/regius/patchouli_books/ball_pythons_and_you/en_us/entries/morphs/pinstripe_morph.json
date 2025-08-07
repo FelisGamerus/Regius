@@ -1,0 +1,18 @@
+{
+  "name": "Pinstripe",
+  "icon": "regius:textures/patchouli_images/icons/morphs/pinstripe.png",
+  "category": "regius:morphs_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Head: Slightly lighter than the normal morph and fades towards the base of the neck.$(li)Body: There is a nearly unbroken pale stripe with dark borders down the spine and pinstripes descending down the flanks."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Pinstripe",
+      "images": ["regius:textures/patchouli_images/morph_showcases/pinstripe.png"],
+      "text": "Type: Dominant"
+    }
+  ]
+}

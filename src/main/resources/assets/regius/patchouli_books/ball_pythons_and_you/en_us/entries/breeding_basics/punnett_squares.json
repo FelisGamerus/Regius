@@ -1,0 +1,18 @@
+{
+  "name": "3: Punnett Squares",
+  "icon": "regius:textures/patchouli_images/icons/punnett_square.png",
+  "category": "regius:breeding_basics_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Punnett squares are used to visualize the inheritance of alleles for a particular trait. Each parent is assigned a side of the square, and then for each parent the alleles are separated and assigned a row or column. The square is then filled in with the respective allele from each parent, representing the 4 possible genotypes of the offspring."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Punnett Squares",
+      "images": ["regius:textures/patchouli_images/punnett_square_example.png"],
+      "text": "An example Punnett square for a parent with XX alleles and a parent with Xx alleles. 50% of the offspring are XX and 50% are Xx."
+    }
+  ]
+}
