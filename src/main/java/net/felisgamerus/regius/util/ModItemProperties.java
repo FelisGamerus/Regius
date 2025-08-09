@@ -11,6 +11,5 @@ public class ModItemProperties {
     public static void addCustomItemProperties() {
         ItemProperties.register(ModItems.BALL_PYTHON_BUCKET.get(), ResourceLocation.fromNamespaceAndPath(Regius.MOD_ID, "bucket_phenotype"),
                 (stack, level, entity, seed) -> BallPythonBucketItem.getBucketPhenotype(stack));
-
     }
 }
