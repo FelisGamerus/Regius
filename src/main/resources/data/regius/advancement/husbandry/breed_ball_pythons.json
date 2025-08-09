@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:husbandry/breed_an_animal",
+  "criteria": {
+    "regius:ball_python": {
+      "conditions": {
+        "child": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "regius:ball_python"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:bred_animals"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "regius.advancements.breed_ball_pythons.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "minecraft:rabbit"
+    },
+    "title": {
+      "translate": "regius.advancements.breed_ball_pythons.title"
+    }
+  },
+  "requirements": [
+    [
+      "regius:ball_python"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

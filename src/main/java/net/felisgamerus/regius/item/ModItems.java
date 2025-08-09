@@ -4,6 +4,7 @@ import net.felisgamerus.regius.Regius;
 import net.felisgamerus.regius.block.ModBlocks;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.item.custom.BallPythonBucketItem;
+import net.felisgamerus.regius.item.custom.IconItem;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -22,6 +23,9 @@ public class ModItems {
                 new Item.Properties()));
     public static final DeferredItem<Item> BALL_PYTHON_BUCKET = ITEMS.register("ball_python_bucket",
             () -> new BallPythonBucketItem(ModEntities.BALL_PYTHON.get(), Fluids.EMPTY, SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1)));
+    //Becuase the advancement json is stupid with Patchouli books
+    public static final DeferredItem<Item> BALL_PYTHONS_AND_YOU = ITEMS.register("ball_pythons_and_you",
+            () -> new IconItem(new Item.Properties()));
 
     //SPHAGNUM PLANTS
     public static final DeferredItem<Item> SPHAGNUM_MOSS = ITEMS.register("sphagnum_moss",

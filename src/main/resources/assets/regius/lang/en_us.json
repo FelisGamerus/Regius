@@ -3,6 +3,8 @@
 
   "entity.regius.ball_python": "Ball Python",
 
+  "regius.icon_item_warning": "This is an item only used for icons. It has no use.",
+
   "entity.regius.ball_python.phenotype.normal": "Normal",
   "entity.regius.ball_python.phenotype.albino": "Albino",
   "entity.regius.ball_python.phenotype.pastel": "Pastel",
@@ -20,6 +22,11 @@
 
   "block.regius.sphagnum_moss_block": "Sphagnum Moss Block",
   "block.regius.dried_sphagnum_moss_block": "Dried Sphagnum Moss Block",
+
+  "regius.advancements.breed_ball_pythons.title": "The Ravens and the Bumblebees",
+  "regius.advancements.breed_ball_pythons.description": "Breed two ball pythons with raw rabbit meat",
+  "regius.advancements.make_guidebook.title": "Ball Pythons and You",
+  "regius.advancements.make_guidebook.description": "Create a guidebook using sphagnum moss and a book",
 
   "block.regius.hollow_oak_log": "Hollow Oak Log",
   "block.regius.hollow_stripped_oak_log": "Stripped Hollow Oak Log",

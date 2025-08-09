@@ -1,0 +1,34 @@
+{
+  "parent": "regius:husbandry/breed_ball_pythons",
+  "criteria": {
+    "guidebook": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "patchouli:book": "regius:ball_pythons_and_you"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "regius.advancements.make_guidebook.description"
+    },
+    "icon": {
+      "id": "regius:ball_pythons_and_you"
+    },
+    "title": {
+      "translate": "regius.advancements.make_guidebook.title"
+    }
+  },
+  "requirements": [
+    [
+      "guidebook"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
