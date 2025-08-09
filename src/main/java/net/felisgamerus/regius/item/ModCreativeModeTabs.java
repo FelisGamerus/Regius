@@ -15,7 +15,7 @@ public class ModCreativeModeTabs {
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Regius.MOD_ID);
 
     public static final Supplier<CreativeModeTab> REGIUS_TAB = CREATIVE_MODE_TAB.register("regius_tab",
-            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.SPHAGNUM_MOSS.get()))
+            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.BALL_PYTHON_BUCKET.get()))
                     .title(Component.translatable("creativetab.regius.regius"))
                     .displayItems((itemDisplayerParameters, output) -> {
                         output.accept(ModItems.BALL_PYTHON_SPAWN_EGG);

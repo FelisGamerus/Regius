@@ -143,6 +143,7 @@ public class BallPythonBucketItem extends BucketItem {
         return toReturn;
     }
 
+    //BUCKET PHENOTYPE
     //Returns the texture the bucket should use
     //Higher priority/impact morphs (Such as albino) should be checked for first
     public static Float getBucketPhenotype(ItemStack stack) {
