@@ -1,10 +1,10 @@
 
-Additional Credits:
+Credits:
 =======
 
 Code from Untamed Wilds (Copyright (C) 2020 RayTrace082) was used in the
 multipart entity code of the ball python entity. It may have originated from
-Alex's Mobs, but I haven't been able to confirm.
+Alex's Mobs, but I don't know this for certain.
 https://github.com/RayTrace082/untamedwilds/tree/1.18.2
 
 Code from Naturalist (Copyright (c) 2022 Starfish Studios, Inc.) was used
