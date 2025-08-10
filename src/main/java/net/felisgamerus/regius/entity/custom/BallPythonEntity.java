@@ -50,11 +50,6 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable {
-    public final BallPythonEntityPart[] ballPythonParts;
-    public final int MULTIPART_COUNT = 2;
-    public int ringBufferIndex = -1;
-    public final double[][] ringBuffer = new double[64][3];
-
     LocusMap ballPythonGenes = new LocusMap();
     static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
 
@@ -88,9 +83,10 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         super(entityType, level);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1.0F, 1.0F, false);
+
+        //The following two lines of code have been copied from Untamed Wilds. See the "MULTIPARTS" section for more details.
         this.ballPythonParts = new BallPythonEntityPart[this.MULTIPART_COUNT];
-        for (int i = 0; i < this.MULTIPART_COUNT; i++) {
-            this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
+        for (int i = 0; i < this.MULTIPART_COUNT; i++) {this.ballPythonParts[i] = new BallPythonEntityPart(this, this.getBbWidth(), this.getBbHeight());
         }
     }
 
@@ -139,7 +135,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         super.readAdditionalSaveData(compoundTag);
         this.setFromBucket(compoundTag.getBoolean("FromBucket"));
 
-        //Copied from Wyrmroost
         String genotype = compoundTag.contains("Genotype") ? compoundTag.getString("Genotype") : "normal";
         setGenotype(genotype);
     }
@@ -191,7 +186,19 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     //ANIMATIONS
-    //Code pulled from Naturalist
+    /*predicate and tonguePredicate methods copied from Naturalist
+    Copyright (c) 2022 Starfish Studios, Inc.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.*/
+
     private <E extends BallPythonEntity> PlayState predicate(final AnimationState<E> event) {
         if (event.isMoving()) {
             event.getController().setAnimation(WALK);
@@ -297,7 +304,29 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     //MULTIPARTS
-    //Code pulled and modified from Untamed Wilds, may have originally been from Alex's Mobs but I have been unable to confirm
+    //All code in the MULTIPARTS section has been copied and modified from Untamed Wilds
+    //https://github.com/RayTrace082/untamedwilds/tree/1.18.2
+    /*Copyright (C) 2020 RayTrace082
+    Modifications Copyright (C) 2025 FelisGamerus
+    Dec. 8, 2024: Changed parameters to work with Regius ball pythons
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
+    public final BallPythonEntityPart[] ballPythonParts;
+    public final int MULTIPART_COUNT = 2;
+    public int ringBufferIndex = -1;
+    public final double[][] ringBuffer = new double[64][3];
 
     @Override
     public boolean isMultipartEntity() {
