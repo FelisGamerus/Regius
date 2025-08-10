@@ -1,5 +1,6 @@
 package net.felisgamerus.regius.worldgen;
 
+import net.felisgamerus.regius.Config;
 import net.felisgamerus.regius.Regius;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.minecraft.core.HolderSet;
@@ -29,7 +30,7 @@ public class ModBiomeModifiers {
 
         context.register(SPAWN_BALL_PYTHON, new BiomeModifiers.AddSpawnsBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SAVANNA)),
-                List.of(new MobSpawnSettings.SpawnerData(ModEntities.BALL_PYTHON.get(), 20, 1, 1))));
+                List.of(new MobSpawnSettings.SpawnerData(ModEntities.BALL_PYTHON.get(), Config.spawnWeight, 1, 1))));
 
         context.register(ADD_SPHAGNUM_MOSS, new BiomeModifiers.AddFeaturesBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SWAMP)),

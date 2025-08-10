@@ -1,6 +1,7 @@
 package net.felisgamerus.regius.entity.custom;
 
 import com.mojang.serialization.Codec;
+import net.felisgamerus.regius.Config;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
@@ -94,11 +95,10 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     //A survey of 100 wild-spawned ball pythons says that the chance for a morph is actually closer to 6%
     @javax.annotation.Nullable
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
-        //1 in CHANCE_FOR_NOT_NORMAL chance for a spawned ball python to have a special morph
-        //TODO: Make CHANCE_FOR_NOT_NORMAL configurable
-        final int CHANCE_FOR_NOT_NORMAL = 10;
+        //1 in MORPH_CHANCE_ON_SPAWN chance for a spawned ball python to have a special morph
+        final int MORPH_CHANCE_ON_SPAWN = Config.morphChanceOnSpawn;
         Random notNormalSeed = new Random();
-        if (notNormalSeed.nextInt(CHANCE_FOR_NOT_NORMAL) == 0) {
+        if (notNormalSeed.nextInt(MORPH_CHANCE_ON_SPAWN) == 0) {
             //Selects a morph randomly out of all the morphs
             Random morphSeed = new Random();
             String morph = MORPH_REFERENCE.get(morphSeed.nextInt(MORPH_REFERENCE.size()));
