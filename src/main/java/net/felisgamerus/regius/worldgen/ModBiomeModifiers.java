@@ -30,7 +30,7 @@ public class ModBiomeModifiers {
 
         context.register(SPAWN_BALL_PYTHON, new BiomeModifiers.AddSpawnsBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SAVANNA)),
-                List.of(new MobSpawnSettings.SpawnerData(ModEntities.BALL_PYTHON.get(), Config.spawnWeight, 1, 1))));
+                List.of(new MobSpawnSettings.SpawnerData(ModEntities.BALL_PYTHON.get(), 20, 1, 1))));
 
         context.register(ADD_SPHAGNUM_MOSS, new BiomeModifiers.AddFeaturesBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SWAMP)),

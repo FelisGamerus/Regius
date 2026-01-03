@@ -19,10 +19,6 @@ public class Config
 {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    private static final ModConfigSpec.IntValue SPAWN_WEIGHT = BUILDER
-            .comment("How often ball pythons spawn. Higher weight = more pythons and less other mobs.")
-            .defineInRange("spawnWeight", 20, 0, Integer.MAX_VALUE);
-
     private static final ModConfigSpec.IntValue MORPH_CHANCE_ON_SPAWN = BUILDER
             .comment("1 in n chance for a ball python to have a morph when it spawns.")
             .defineInRange("morphChanceOnSpawn", 10, 1, Integer.MAX_VALUE);
@@ -35,7 +31,6 @@ public class Config
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
     {
-        spawnWeight = SPAWN_WEIGHT.get();
         morphChanceOnSpawn = MORPH_CHANCE_ON_SPAWN.get();
     }
 }
