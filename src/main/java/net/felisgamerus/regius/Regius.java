@@ -3,6 +3,7 @@ package net.felisgamerus.regius;
 import net.felisgamerus.regius.block.ModBlocks;
 import net.felisgamerus.regius.entity.ModEntities;
 import net.felisgamerus.regius.entity.client.BallPythonRenderer;
+import net.felisgamerus.regius.entity.custom.ai.ModSensors;
 import net.felisgamerus.regius.item.ModCreativeModeTabs;
 import net.felisgamerus.regius.item.ModItems;
 import net.felisgamerus.regius.util.ModItemProperties;
@@ -51,6 +52,8 @@ public class Regius {
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModEntities.register(modEventBus);
+
+        ModSensors.init();
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);

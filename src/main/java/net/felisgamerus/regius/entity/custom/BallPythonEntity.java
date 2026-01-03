@@ -1,10 +1,13 @@
 package net.felisgamerus.regius.entity.custom;
 
 import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.felisgamerus.regius.Config;
 import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.entity.custom.ai.NearbyPreySensor;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.ModItems;
+import net.felisgamerus.regius.util.ModTags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,17 +23,17 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
-import net.minecraft.world.entity.ai.goal.BreedGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.*;
+import net.minecraft.world.entity.animal.axolotl.AxolotlAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,6 +42,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
+import net.tslat.smartbrainlib.api.SmartBrainOwner;
+import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
+import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
+import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
+import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreedWithPartner;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.*;
+import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -48,9 +67,10 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable {
+public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable, SmartBrainOwner<BallPythonEntity> {
     LocusMap ballPythonGenes = new LocusMap();
     static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
 
@@ -234,7 +254,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 10D)
-                .add(Attributes.MOVEMENT_SPEED, 0.151D)
+                .add(Attributes.MOVEMENT_SPEED, 0.165D)
                 .add(Attributes.FOLLOW_RANGE, 5f)
                 .add(Attributes.ATTACK_DAMAGE, 4.0D) //Change attack-related attributes once constriction is implemented
                 .add(Attributes.ATTACK_KNOCKBACK, 0.0D)
@@ -242,16 +262,44 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
                 .add(Attributes.STEP_HEIGHT, 1.0);
     }
 
-    //GOALS
+    //BRAIN
     @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new BreedGoal(this, 1.2D));
-        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
-        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.1D));
-        this.goalSelector.addGoal(3, new RandomSwimmingGoal(this, 1.0D, 10));
+    protected Brain.Provider<?> brainProvider() {
+        return new SmartBrainProvider<>(this);
+    }
 
-        this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
+    @Override
+    public List<ExtendedSensor<BallPythonEntity>> getSensors() {
+        return ObjectArrayList.of(
+                new NearbyLivingEntitySensor<>(),
+                new NearbyPreySensor<>()
+        );
+    }
+
+    @Override
+    public BrainActivityGroup<BallPythonEntity> getCoreTasks() {
+        return BrainActivityGroup.coreTasks(
+                new LookAtTarget<>(),
+                new MoveToWalkTarget<>());
+    }
+
+    @Override
+    public BrainActivityGroup<BallPythonEntity> getIdleTasks() {
+        return BrainActivityGroup.idleTasks(
+                new FirstApplicableBehaviour<BallPythonEntity>(
+                        new BreedWithPartner<>(),
+                        new SetAttackTarget<>()),
+                new OneRandomBehaviour<>(
+                        new SetRandomWalkTarget<>(),
+                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60))));
+    }
+
+    @Override
+    public BrainActivityGroup<BallPythonEntity> getFightTasks() {
+        return BrainActivityGroup.fightTasks(
+                new InvalidateAttackTarget<>(),
+                new SetWalkTargetToAttackTarget<>(),
+                new AnimatableMeleeAttack<>(0));
     }
 
     //MOVEMENT
@@ -352,6 +400,12 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         part.setPos(this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ);
     }
 
+    @Override
+    protected void customServerAiStep() {
+        tickBrain(this);
+    }
+
+    //Haven't figured out how to remove this without causing a StackOverflowError yet
     public void aiStep() {
         if (!this.isNoAi()) {
             if (!isSleeping()) {
@@ -428,7 +482,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     //BREEDING
     @Override
     public boolean isFood(ItemStack pStack) {
-        return pStack.is(Items.RABBIT);
+        return pStack.is(ModTags.Items.BALL_PYTHON_BREEDABLE_FOOD);
     }
 
     @Nullable
