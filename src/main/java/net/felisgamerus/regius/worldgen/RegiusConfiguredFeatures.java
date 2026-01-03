@@ -1,11 +1,10 @@
 package net.felisgamerus.regius.worldgen;
 
 import net.felisgamerus.regius.Regius;
-import net.felisgamerus.regius.block.ModBlocks;
+import net.felisgamerus.regius.block.RegiusBlocks;
 import net.felisgamerus.regius.worldgen.custom.ModFeatureUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
@@ -17,14 +16,14 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 
 import java.util.List;
 
-public class ModConfiguredFeatures {
+public class RegiusConfiguredFeatures {
 
     public static final ResourceKey<ConfiguredFeature<?, ?>> SPHAGNUM_MOSS_KEY = registerKey("sphagnum_moss");
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         register(context, SPHAGNUM_MOSS_KEY, Feature.RANDOM_PATCH,
                 ModFeatureUtils.sphagnumPatchConfigurationPart1(Feature.SIMPLE_BLOCK,
-                        new SimpleBlockConfiguration(BlockStateProvider.simple(ModBlocks.SPHAGNUM_MOSS.get().defaultBlockState())
+                        new SimpleBlockConfiguration(BlockStateProvider.simple(RegiusBlocks.SPHAGNUM_MOSS.get().defaultBlockState())
                         ), List.of(Blocks.GRASS_BLOCK)));
 
     }

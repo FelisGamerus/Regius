@@ -12,14 +12,14 @@ import net.minecraft.world.level.levelgen.placement.*;
 
 import java.util.List;
 
-public class ModPlacedFeatures {
+public class RegiusPlacedFeatures {
 
     public static final ResourceKey<PlacedFeature> SPHAGNUM_MOSS_PLACED_KEY = registerKey("sphagnum_moss_placed");
 
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         var configuredFeatures = context.lookup(Registries.CONFIGURED_FEATURE);
 
-        register(context, SPHAGNUM_MOSS_PLACED_KEY, configuredFeatures.getOrThrow(ModConfiguredFeatures.SPHAGNUM_MOSS_KEY),
+        register(context, SPHAGNUM_MOSS_PLACED_KEY, configuredFeatures.getOrThrow(RegiusConfiguredFeatures.SPHAGNUM_MOSS_KEY),
                 List.of(RarityFilter.onAverageOnceEvery(16), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome()));
 
     }

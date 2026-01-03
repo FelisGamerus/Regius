@@ -1,7 +1,6 @@
 package net.felisgamerus.regius.entity.custom.ai;
 
 import net.felisgamerus.regius.util.ModTags;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
@@ -9,8 +8,6 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.tslat.smartbrainlib.api.core.sensor.EntityFilteringSensor;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import net.tslat.smartbrainlib.registry.SBLSensors;
-import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -29,7 +26,7 @@ public class NearbyPreySensor<E extends LivingEntity> extends EntityFilteringSen
 
     @Override
     public SensorType<? extends ExtendedSensor<?>> type() {
-        return ModSensors.NEARBY_PREY.get();
+        return RegiusSensors.NEARBY_PREY.get();
     }
 
     //Checks if the target is a valid prey mob

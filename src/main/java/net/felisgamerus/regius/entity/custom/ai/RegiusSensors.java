@@ -6,7 +6,7 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 
 import java.util.function.Supplier;
 
-public class ModSensors {
+public class RegiusSensors {
     public static void init() {}
 
     public static final Supplier<SensorType<NearbyPreySensor<?>>> NEARBY_PREY = register("nearby_prey", NearbyPreySensor::new);

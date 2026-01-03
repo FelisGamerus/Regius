@@ -1,6 +1,5 @@
 package net.felisgamerus.regius.block.custom;
 
-import net.felisgamerus.regius.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.AxeItem;

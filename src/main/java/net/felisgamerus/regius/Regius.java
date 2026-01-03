@@ -1,16 +1,15 @@
 package net.felisgamerus.regius;
 
-import net.felisgamerus.regius.block.ModBlocks;
-import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.block.RegiusBlocks;
+import net.felisgamerus.regius.entity.RegiusEntities;
 import net.felisgamerus.regius.entity.client.BallPythonRenderer;
-import net.felisgamerus.regius.entity.custom.ai.ModSensors;
-import net.felisgamerus.regius.item.ModCreativeModeTabs;
-import net.felisgamerus.regius.item.ModItems;
-import net.felisgamerus.regius.util.ModItemProperties;
+import net.felisgamerus.regius.entity.custom.ai.RegiusSensors;
+import net.felisgamerus.regius.item.RegiusCreativeModeTabs;
+import net.felisgamerus.regius.item.RegiusItems;
+import net.felisgamerus.regius.util.RegiusItemProperties;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.block.ComposterBlock;
 import org.slf4j.Logger;
@@ -48,12 +47,12 @@ public class Regius {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
 
-        ModCreativeModeTabs.register(modEventBus);
-        ModItems.register(modEventBus);
-        ModBlocks.register(modEventBus);
-        ModEntities.register(modEventBus);
+        RegiusCreativeModeTabs.register(modEventBus);
+        RegiusItems.register(modEventBus);
+        RegiusBlocks.register(modEventBus);
+        RegiusEntities.register(modEventBus);
 
-        ModSensors.init();
+        RegiusSensors.init();
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
@@ -62,16 +61,16 @@ public class Regius {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.DRIED_SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(RegiusBlocks.SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(RegiusBlocks.DRIED_SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
         registerCompostables();
     }
 
     public static void registerCompostables() {
-        ComposterBlock.COMPOSTABLES.put(ModItems.SPHAGNUM_MOSS.get(), 0.65F);
-        ComposterBlock.COMPOSTABLES.put(ModItems.DRIED_SPHAGNUM_MOSS.get(), 0.65F);
-        ComposterBlock.COMPOSTABLES.put(ModItems.SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
-        ComposterBlock.COMPOSTABLES.put(ModItems.DRIED_SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
+        ComposterBlock.COMPOSTABLES.put(RegiusItems.SPHAGNUM_MOSS.get(), 0.65F);
+        ComposterBlock.COMPOSTABLES.put(RegiusItems.DRIED_SPHAGNUM_MOSS.get(), 0.65F);
+        ComposterBlock.COMPOSTABLES.put(RegiusItems.SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
+        ComposterBlock.COMPOSTABLES.put(RegiusItems.DRIED_SPHAGNUM_MOSS_BLOCK.get(), 0.85F);
     }
 
     // Add the example block item to the building blocks tab
@@ -91,8 +90,8 @@ public class Regius {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            ModItemProperties.addCustomItemProperties();
-            EntityRenderers.register(ModEntities.BALL_PYTHON.get(), BallPythonRenderer::new);
+            RegiusItemProperties.addCustomItemProperties();
+            EntityRenderers.register(RegiusEntities.BALL_PYTHON.get(), BallPythonRenderer::new);
         }
     }
 }

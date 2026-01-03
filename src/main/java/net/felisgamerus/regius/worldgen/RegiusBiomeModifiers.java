@@ -1,14 +1,12 @@
 package net.felisgamerus.regius.worldgen;
 
-import net.felisgamerus.regius.Config;
 import net.felisgamerus.regius.Regius;
-import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.entity.RegiusEntities;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -18,7 +16,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.List;
 
-public class ModBiomeModifiers {
+public class RegiusBiomeModifiers {
 
     public static final ResourceKey<BiomeModifier> SPAWN_BALL_PYTHON = registerKey("spawn_ball_python");
 
@@ -30,11 +28,11 @@ public class ModBiomeModifiers {
 
         context.register(SPAWN_BALL_PYTHON, new BiomeModifiers.AddSpawnsBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SAVANNA)),
-                List.of(new MobSpawnSettings.SpawnerData(ModEntities.BALL_PYTHON.get(), 20, 1, 1))));
+                List.of(new MobSpawnSettings.SpawnerData(RegiusEntities.BALL_PYTHON.get(), 20, 1, 1))));
 
         context.register(ADD_SPHAGNUM_MOSS, new BiomeModifiers.AddFeaturesBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SWAMP)),
-                HolderSet.direct(placedFeatures.getOrThrow(ModPlacedFeatures.SPHAGNUM_MOSS_PLACED_KEY)),
+                HolderSet.direct(placedFeatures.getOrThrow(RegiusPlacedFeatures.SPHAGNUM_MOSS_PLACED_KEY)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
 
     }

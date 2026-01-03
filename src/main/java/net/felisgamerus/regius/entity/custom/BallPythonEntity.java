@@ -3,14 +3,13 @@ package net.felisgamerus.regius.entity.custom;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.felisgamerus.regius.Config;
-import net.felisgamerus.regius.entity.ModEntities;
+import net.felisgamerus.regius.entity.RegiusEntities;
 import net.felisgamerus.regius.entity.custom.ai.NearbyPreySensor;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
-import net.felisgamerus.regius.item.ModItems;
+import net.felisgamerus.regius.item.RegiusItems;
 import net.felisgamerus.regius.util.ModTags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -27,16 +26,11 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
-import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.*;
-import net.minecraft.world.entity.animal.axolotl.AxolotlAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -56,7 +50,6 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarge
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.*;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
@@ -67,8 +60,6 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
 
 public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable, SmartBrainOwner<BallPythonEntity> {
     LocusMap ballPythonGenes = new LocusMap();
@@ -337,7 +328,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     @Override
     public ItemStack getBucketItemStack() {
-        return new ItemStack(ModItems.BALL_PYTHON_BUCKET.get());
+        return new ItemStack(RegiusItems.BALL_PYTHON_BUCKET.get());
     }
 
     @Override
@@ -488,7 +479,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
-        BallPythonEntity babySnake = ModEntities.BALL_PYTHON.get().create(level);
+        BallPythonEntity babySnake = RegiusEntities.BALL_PYTHON.get().create(level);
         if (babySnake != null) {
             if (otherParent instanceof BallPythonEntity) {
                 BallPythonEntity parent1 = (BallPythonEntity) otherParent;
