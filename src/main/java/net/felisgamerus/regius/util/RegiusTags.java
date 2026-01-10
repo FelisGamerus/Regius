@@ -7,7 +7,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 
-public class ModTags {
+public class RegiusTags {
     public static class Items {
         //All food ball pythons can eat
         public static final TagKey<Item> BALL_PYTHON_GENERAL_FOOD = create("ball_python_general_food");
