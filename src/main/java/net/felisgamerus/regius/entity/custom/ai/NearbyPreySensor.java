@@ -1,6 +1,6 @@
 package net.felisgamerus.regius.entity.custom.ai;
 
-import net.felisgamerus.regius.util.ModTags;
+import net.felisgamerus.regius.util.RegiusTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
@@ -33,7 +33,7 @@ public class NearbyPreySensor<E extends LivingEntity> extends EntityFilteringSen
     @Override
     protected BiPredicate<LivingEntity, E> predicate() {
         return (target, entity) -> {
-            if (!target.getType().is(ModTags.Entities.BALL_PYTHON_PREY)) {
+            if (!target.getType().is(RegiusTags.Entities.BALL_PYTHON_PREY)) {
                 return false;
             }
 

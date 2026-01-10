@@ -7,7 +7,7 @@ import net.felisgamerus.regius.entity.RegiusEntities;
 import net.felisgamerus.regius.entity.custom.ai.NearbyPreySensor;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.item.RegiusItems;
-import net.felisgamerus.regius.util.ModTags;
+import net.felisgamerus.regius.util.RegiusTags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -260,6 +260,11 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     @Override
+    public boolean wantsToPickUp(ItemStack stack) {
+        return stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD);
+    }
+
+    @Override
     public List<ExtendedSensor<BallPythonEntity>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyLivingEntitySensor<>(),
@@ -473,7 +478,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     //BREEDING
     @Override
     public boolean isFood(ItemStack pStack) {
-        return pStack.is(ModTags.Items.BALL_PYTHON_BREEDABLE_FOOD);
+        return pStack.is(RegiusTags.Items.BALL_PYTHON_BREEDABLE_FOOD);
     }
 
     @Nullable
