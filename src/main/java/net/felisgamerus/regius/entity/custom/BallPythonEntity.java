@@ -500,18 +500,18 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
             String locusName = MORPH_REFERENCE.get(i);
             if (parent0.random.nextBoolean()) {
-                babyGenes.genes.get(locusName).setAllele0(parent0Genes.genes.get(locusName).getAllele0());
+                babyGenes.getGenes().get(locusName).setAllele0(parent0Genes.getGenes().get(locusName).getAllele0());
             } else {
-                babyGenes.genes.get(locusName).setAllele0(parent0Genes.genes.get(locusName).getAllele1());
+                babyGenes.getGenes().get(locusName).setAllele0(parent0Genes.getGenes().get(locusName).getAllele1());
             }
         }
 
         for (int i = 0; i < MORPH_REFERENCE.size(); i++) {
             String locusName = MORPH_REFERENCE.get(i);
             if (parent0.random.nextBoolean()) {
-                babyGenes.genes.get(locusName).setAllele1(parent1Genes.genes.get(locusName).getAllele0());
+                babyGenes.getGenes().get(locusName).setAllele1(parent1Genes.getGenes().get(locusName).getAllele0());
             } else {
-                babyGenes.genes.get(locusName).setAllele1(parent1Genes.genes.get(locusName).getAllele1());
+                babyGenes.getGenes().get(locusName).setAllele1(parent1Genes.getGenes().get(locusName).getAllele1());
             }
         }
         return babyGenes;
@@ -619,9 +619,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
                     isHomozygous = true;
                 }
 
-                createdGenes.genes.get(morph).setAllele0(1); //Adds the morph to the new genes
+                createdGenes.getGenes().get(morph).setAllele0(1); //Adds the morph to the new genes
                 if (isHomozygous) {
-                    createdGenes.genes.get(morph).setAllele1(1); //Adds it again if homo
+                    createdGenes.getGenes().get(morph).setAllele1(1); //Adds it again if homo
                 }
             }
         }
