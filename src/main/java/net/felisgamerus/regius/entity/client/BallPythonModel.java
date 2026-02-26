@@ -23,7 +23,7 @@ public class BallPythonModel extends GeoModel<BallPythonEntity> {
     @Override
     public ResourceLocation getTextureResource(BallPythonEntity entity) {
         //ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(Regius.MOD_ID, "textures/entity/ballpython/normal.png");
-        ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(Regius.MOD_ID, "textures/entity/ballpython/" + entity.convertGenotypeToPhenotype(entity.getGenotype()) + ".png");
+        ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(Regius.MOD_ID, "textures/entity/ballpython/" + entity.getTexture() + ".png");
         return texture;
     }
 

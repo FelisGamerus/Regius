@@ -10,10 +10,24 @@ public class LocusMap {
     private HashMap<String, Locus> genes = new HashMap<>();
 
     //Lists of all possible morphs
-    private static final ArrayList<String> ALL_MORPHS = new ArrayList<>(Arrays.asList("albino", "pinstripe", "pastel"));
+    //Note to self: To add new morphs, just add the textures and edit these lists. That's it.
+    private static final ArrayList<String> ALL_MORPHS = new ArrayList<>(Arrays.asList("albino", "cinnamon", "pinstripe", "pastel"));
     private static final HashSet<String> DOMINANT_MORPHS = new HashSet<>(Arrays.asList("pinstripe"));
-    private static final HashSet<String> INCOMPLETE_DOMINANT_MORPHS = new HashSet<>(Arrays.asList("pastel"));
+    private static final HashSet<String> INCOMPLETE_DOMINANT_MORPHS = new HashSet<>(Arrays.asList("cinnamon", "pastel"));
     private static final HashSet<String> RECESSIVE_MORPHS = new HashSet<>(Arrays.asList("albino"));
+
+    //List of morph combos with no assigned texture, couldn't think of anywhere better to put it
+    private static final ArrayList<String> INVALID_TEXTURES = new ArrayList<>(Arrays.asList(
+            "albino_cinnamon-super_pastel",
+            "albino_cinnamon_pastel-super",
+            "albino_cinnamon-super_pastel-super",
+            "albino_cinnamon-super_pinstripe",
+            "cinnamon-super_pastel-super_pinstripe",
+            "albino_cinnamon-super_pastel_pinstripe",
+            "albino_cinnamon_pastel-super_pinstripe",
+            "albino_cinnamon-super_pastel-super_pinstripe",
+            "albino_pastel-super_pinstripe"
+    ));
 
     public LocusMap() {
         this.fillDefaultLocusMap();
@@ -66,5 +80,9 @@ public class LocusMap {
         } else if (RECESSIVE_MORPHS.contains(locus)) {
             return "recessive";
         } else return "unknown";
+    }
+
+    public static boolean isInvalid(String morphCombo) {
+        return INVALID_TEXTURES.contains(morphCombo);
     }
 }

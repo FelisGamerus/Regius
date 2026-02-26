@@ -51,6 +51,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAtt
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.*;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearestItemSensor;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -268,6 +269,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     public List<ExtendedSensor<BallPythonEntity>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyLivingEntitySensor<>(),
+                new NearestItemSensor<>(),
                 new NearbyPreySensor<>()
         );
     }
@@ -399,9 +401,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     @Override
     protected void customServerAiStep() {
         tickBrain(this);
+        super.customServerAiStep();
     }
 
-    //Haven't figured out how to remove this without causing a StackOverflowError yet
     public void aiStep() {
         if (!this.isNoAi()) {
             if (!isSleeping()) {
@@ -525,6 +527,16 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     //GENETICS
     public void setGenes (LocusMap givenLocusMap) {
         this.ballPythonGenes = givenLocusMap;
+    }
+
+    public String getTexture () {
+        String phenotype = convertGenotypeToPhenotype(this.getGenotype());
+        if(LocusMap.isInvalid(phenotype)) {
+            return "invalid";
+        }
+        else {
+            return convertGenotypeToPhenotype(this.getGenotype());
+        }
     }
 
     //Converts a ball python's genotype to its visible phenotype
