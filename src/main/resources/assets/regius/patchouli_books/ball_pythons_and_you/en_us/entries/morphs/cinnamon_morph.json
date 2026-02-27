@@ -1,0 +1,18 @@
+{
+  "name": "Cinnamon",
+  "icon": "regius:textures/patchouli_images/icons/morphs/cinnamon.png",
+  "category": "regius:morphs_category",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Body: Darker overall, transitioning to a lighter color near the belly."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Cinnamon",
+      "images": ["regius:textures/patchouli_images/morph_showcases/cinnamon.png"],
+      "text": "Type: Incomplete dominant$(funfact)This morph is more prone to a facial deformity known as a 'duckbill'.$()"
+    }
+  ]
+}
