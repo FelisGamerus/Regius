@@ -85,7 +85,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.ballpython.idle");
     protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.ballpython.walk");
     protected static final RawAnimation BALL = RawAnimation.begin().thenLoop("animation.ballpython.ball");
-    protected static final RawAnimation TONGUE = RawAnimation.begin().thenPlay("animation.ballpython.tongue");
+    protected static final RawAnimation TONGUE_FLICK = RawAnimation.begin().thenPlay("animation.ballpython.tongueflick");
 
     @Override
     public float getAgeScale() {
@@ -225,7 +225,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         if (this.random.nextInt(1000) < this.ambientSoundTime && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
             event.getController().forceAnimationReset();
 
-            event.getController().setAnimation(TONGUE);
+            event.getController().setAnimation(TONGUE_FLICK);
         }
         return PlayState.CONTINUE;
     }
