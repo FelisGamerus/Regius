@@ -16,6 +16,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -25,10 +26,13 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.*;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -92,10 +96,14 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return 1.0f; //Because babies being half-scale messes the hitboxes up
     }
 
+    private int ticksSinceEaten;
+
     public BallPythonEntity(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1.0F, 1.0F, false);
+        this.lookControl = new SmoothSwimmingLookControl(this, 20);
+        this.setCanPickUpLoot(true);
 
         //The following two lines of code have been copied from Untamed Wilds. See the "MULTIPARTS" section for more details.
         this.ballPythonParts = new BallPythonEntityPart[this.MULTIPART_COUNT];
@@ -312,6 +320,55 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     }
 
+    //ITEM HOLDING
+    private boolean canEat(ItemStack stack) {
+        return stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD) && !this.isSleeping();
+    }
+
+    public boolean canTakeItem(ItemStack itemstack) {
+        EquipmentSlot equipmentslot = this.getEquipmentSlotForItem(itemstack);
+        return !this.getItemBySlot(equipmentslot).isEmpty() ? false : equipmentslot == EquipmentSlot.MAINHAND && super.canTakeItem(itemstack);
+    }
+
+    public boolean canHoldItem(ItemStack stack) {
+        ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
+        return itemstack.isEmpty();// && stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD);
+    }
+
+    private void dropItemStack(ItemStack stack) {
+        ItemEntity itementity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(), stack);
+        this.level().addFreshEntity(itementity);
+    }
+
+    protected void pickUpItem(ItemEntity itemEntity) {
+        ItemStack itemstack = itemEntity.getItem();
+        if (this.canHoldItem(itemstack)) {
+            int i = itemstack.getCount();
+            if (i > 1) {
+                this.dropItemStack(itemstack.split(i - 1));
+            }
+
+            this.onItemPickup(itemEntity);
+            this.setItemSlot(EquipmentSlot.MAINHAND, itemstack.split(1));
+            this.setGuaranteedDrop(EquipmentSlot.MAINHAND);
+            this.take(itemEntity, itemstack.getCount());
+            itemEntity.discard();
+        }
+    }
+
+    protected void dropAllDeathLoot(ServerLevel level, DamageSource damageSource) {
+        super.dropAllDeathLoot(level, damageSource);
+    }
+
+    protected void dropEquipment() {
+        super.dropEquipment();
+        ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
+        if (!itemstack.isEmpty()) {
+            this.spawnAtLocation(itemstack);
+            this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        }
+    }
+
     //BUCKETS
     @Override
     public void saveToBucketTag(ItemStack stack) {
@@ -405,8 +462,28 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     public void aiStep() {
-        if (!this.isNoAi()) {
+        if (!this.isNoAi() && this.isAlive()) {
             if (!isSleeping()) {
+                //Eating stuff
+                ++this.ticksSinceEaten;
+                ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
+                if(!this.level().isClientSide) {
+                    if (this.canEat(itemstack)) {
+                        if (this.ticksSinceEaten > 600) {
+                            ItemStack itemstack1 = itemstack.finishUsingItem(this.level(), this);
+                            if (!itemstack1.isEmpty()) {
+                                this.setItemSlot(EquipmentSlot.MAINHAND, itemstack1);
+                            }
+
+                            this.ticksSinceEaten = 0;
+                        } else if (this.ticksSinceEaten > 560 && this.random.nextFloat() < 0.1F) {
+                            this.playSound(this.getEatingSound(itemstack), 1.0F, 1.0F);
+                            this.level().broadcastEntityEvent(this, (byte)45);
+                        }
+                    }
+                }
+
+                //Multipart stuff
                 if (this.ringBufferIndex < 0) {
                     for (int i = 0; i < this.ringBuffer.length; ++i) {
                         this.ringBuffer[i][0] = this.getYRot();
