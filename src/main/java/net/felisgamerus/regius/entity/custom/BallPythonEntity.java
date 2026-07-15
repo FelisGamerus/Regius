@@ -1,11 +1,10 @@
 package net.felisgamerus.regius.entity.custom;
 
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.felisgamerus.regius.Config;
 import net.felisgamerus.regius.entity.RegiusEntities;
-import net.felisgamerus.regius.entity.custom.ai.NearbyPreySensor;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
+import net.felisgamerus.regius.entity.custom.goals.RegiusSearchForItemsGoal;
 import net.felisgamerus.regius.item.RegiusItems;
 import net.felisgamerus.regius.util.RegiusTags;
 import net.minecraft.core.component.DataComponents;
@@ -16,22 +15,21 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.*;
-import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -40,22 +38,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
-import net.tslat.smartbrainlib.api.SmartBrainOwner;
-import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
-import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
-import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreedWithPartner;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.target.*;
-import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearestItemSensor;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -65,8 +47,9 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
+import java.util.function.Predicate;
 
-public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable, SmartBrainOwner<BallPythonEntity> {
+public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable {
     LocusMap ballPythonGenes = new LocusMap();
     static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
 
@@ -262,50 +245,16 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
                 .add(Attributes.STEP_HEIGHT, 1.0);
     }
 
-    //BRAIN
+    //GOALS
     @Override
-    protected Brain.Provider<?> brainProvider() {
-        return new SmartBrainProvider<>(this);
-    }
-
-    @Override
-    public boolean wantsToPickUp(ItemStack stack) {
-        return stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD);
-    }
-
-    @Override
-    public List<ExtendedSensor<BallPythonEntity>> getSensors() {
-        return ObjectArrayList.of(
-                new NearbyLivingEntitySensor<>(),
-                new NearestItemSensor<>(),
-                new NearbyPreySensor<>()
-        );
-    }
-
-    @Override
-    public BrainActivityGroup<BallPythonEntity> getCoreTasks() {
-        return BrainActivityGroup.coreTasks(
-                new LookAtTarget<>(),
-                new MoveToWalkTarget<>());
-    }
-
-    @Override
-    public BrainActivityGroup<BallPythonEntity> getIdleTasks() {
-        return BrainActivityGroup.idleTasks(
-                new FirstApplicableBehaviour<BallPythonEntity>(
-                        new BreedWithPartner<>(),
-                        new SetAttackTarget<>()),
-                new OneRandomBehaviour<>(
-                        new SetRandomWalkTarget<>(),
-                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60))));
-    }
-
-    @Override
-    public BrainActivityGroup<BallPythonEntity> getFightTasks() {
-        return BrainActivityGroup.fightTasks(
-                new InvalidateAttackTarget<>(),
-                new SetWalkTargetToAttackTarget<>(),
-                new AnimatableMeleeAttack<>(0));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new BreedGoal(this, 1.2D));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
+        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.1D));
+        this.goalSelector.addGoal(3, new RandomSwimmingGoal(this, 1.0D, 10));
+        this.goalSelector.addGoal(11, new RegiusSearchForItemsGoal(this));
+        this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
     }
 
     //MOVEMENT
@@ -317,12 +266,29 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         } else {
             super.travel(pTravelVector);
         }
+    }
 
+    public boolean canMove() {
+        return !this.isSleeping();
     }
 
     //ITEM HOLDING
+    //Copied from Fox class
+    private static final Predicate<ItemEntity> ALLOWED_ITEMS;
+    static {
+        ALLOWED_ITEMS = (item) -> !item.hasPickUpDelay() && item.isAlive();
+    }
+    public static Predicate<ItemEntity> getAllowedItems() {
+        return ALLOWED_ITEMS;
+    }
+
     private boolean canEat(ItemStack stack) {
         return stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD) && !this.isSleeping();
+    }
+
+    public boolean hasEmptyInventory() {
+        ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
+        return itemstack.isEmpty();
     }
 
     public boolean canTakeItem(ItemStack itemstack) {
@@ -332,7 +298,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     public boolean canHoldItem(ItemStack stack) {
         ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
-        return itemstack.isEmpty();// && stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD);
+        return itemstack.isEmpty() && stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD);
     }
 
     private void dropItemStack(ItemStack stack) {
@@ -345,7 +311,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         if (this.canHoldItem(itemstack)) {
             int i = itemstack.getCount();
             if (i > 1) {
-                this.dropItemStack(itemstack.split(i - 1));
+                this.dropItemStack(itemstack.split(i - 1)); //Can only pick up 1 item at a time
             }
 
             this.onItemPickup(itemEntity);
@@ -453,12 +419,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     private void setPartPosition(BallPythonEntityPart part, double offsetX, double offsetY, double offsetZ) {
         part.setPos(this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ);
-    }
-
-    @Override
-    protected void customServerAiStep() {
-        tickBrain(this);
-        super.customServerAiStep();
     }
 
     public void aiStep() {

@@ -3,7 +3,6 @@ package net.felisgamerus.regius;
 import net.felisgamerus.regius.block.RegiusBlocks;
 import net.felisgamerus.regius.entity.RegiusEntities;
 import net.felisgamerus.regius.entity.client.BallPythonRenderer;
-import net.felisgamerus.regius.entity.custom.ai.RegiusSensors;
 import net.felisgamerus.regius.item.RegiusCreativeModeTabs;
 import net.felisgamerus.regius.item.RegiusItems;
 import net.felisgamerus.regius.util.RegiusItemProperties;
@@ -51,8 +50,6 @@ public class Regius {
         RegiusItems.register(modEventBus);
         RegiusBlocks.register(modEventBus);
         RegiusEntities.register(modEventBus);
-
-        RegiusSensors.init();
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);

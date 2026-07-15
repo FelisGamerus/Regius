@@ -29,11 +29,6 @@ repositories {
 
     //Patchouli
     maven { url 'https://maven.blamejared.com' }
-
-    maven {
-        name = 'SmartBrainLib'
-        url = 'https://dl.cloudsmith.io/public/tslat/sbl/maven/'
-    }
 }
 
 base {
@@ -155,8 +150,6 @@ dependencies {
     localRuntime "vazkii.patchouli:Patchouli:1.21.1-92-NEOFORGE"
 
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-
-    implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

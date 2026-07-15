@@ -1,15 +1,19 @@
 package net.felisgamerus.regius.entity.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.felisgamerus.regius.entity.client.layers.BPHeldItemLayer;
 import net.felisgamerus.regius.entity.custom.BallPythonEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 public class BallPythonRenderer extends GeoEntityRenderer<BallPythonEntity>{
 
     public BallPythonRenderer(EntityRendererProvider.Context pContext) {
         super(pContext, new BallPythonModel());
+
+        addRenderLayer(new BPHeldItemLayer( this));
     }
 
     @Override
