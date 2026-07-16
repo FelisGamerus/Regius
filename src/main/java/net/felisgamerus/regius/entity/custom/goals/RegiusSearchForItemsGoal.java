@@ -3,9 +3,7 @@ package net.felisgamerus.regius.entity.custom.goals;
 import net.felisgamerus.regius.entity.custom.BallPythonEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 

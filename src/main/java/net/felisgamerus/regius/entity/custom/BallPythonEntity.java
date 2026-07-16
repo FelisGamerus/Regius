@@ -5,6 +5,8 @@ import net.felisgamerus.regius.Config;
 import net.felisgamerus.regius.entity.RegiusEntities;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.entity.custom.goals.RegiusSearchForItemsGoal;
+import net.felisgamerus.regius.entity.custom.goals.RegiusSeekShelterGoal;
+import net.felisgamerus.regius.entity.custom.goals.RegiusSleepGoal;
 import net.felisgamerus.regius.item.RegiusItems;
 import net.felisgamerus.regius.util.RegiusTags;
 import net.minecraft.core.component.DataComponents;
@@ -50,16 +52,12 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable {
-    LocusMap ballPythonGenes = new LocusMap();
-    static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
-
     public boolean isPushedByFluid() {
         return false;
     }
     protected PathNavigation createNavigation(Level pLevel) {
         return new AmphibiousPathNavigation(this, pLevel);
     }
-
     public boolean isPickable() {
         return true;
     }
@@ -67,6 +65,22 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return super.requiresCustomPersistence() || this.fromBucket();
     }
 
+    LocusMap ballPythonGenes = new LocusMap();
+    static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
+    private int ticksSinceEaten;
+    private static final EntityDataAccessor<Byte> DATA_FLAGS_ID;
+    private static final int FLAG_SLEEPING = 32;
+    private static final Predicate<ItemEntity> ALLOWED_ITEMS;
+
+    static {
+        ALLOWED_ITEMS = (item) -> !item.hasPickUpDelay() && item.isAlive();
+        DATA_FLAGS_ID = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BYTE);
+    }
+    public static Predicate<ItemEntity> getAllowedItems() {
+        return ALLOWED_ITEMS;
+    }
+
+    //Animation stuff
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
     protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.ballpython.idle");
@@ -79,8 +93,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return 1.0f; //Because babies being half-scale messes the hitboxes up
     }
 
-    private int ticksSinceEaten;
-
+    //Constructor
     public BallPythonEntity(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
@@ -124,6 +137,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         builder.define(FROM_BUCKET, false);
         builder.define(GENOTYPE, "normal");
         builder.define(PHENOTYPE, 0);
+        builder.define(DATA_FLAGS_ID, (byte)0);
     }
 
     @Override
@@ -203,15 +217,20 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     copies or substantial portions of the Software.*/
 
     private <E extends BallPythonEntity> PlayState predicate(final AnimationState<E> event) {
-        if (event.isMoving()) {
+        if(this.isSleeping()) { //Ball anim
+            event.getController().setAnimation(BALL);
+        }
+        else if(event.isMoving()) { //Walk anim
             event.getController().setAnimation(WALK);
             event.getController().setAnimationSpeed(0.75D);
-        } else {
+        }
+        else { //Idle anim
             event.getController().setAnimation(IDLE);
         }
         return PlayState.CONTINUE;
     }
 
+    //Tongue
     private <E extends BallPythonEntity> PlayState tonguePredicate(final AnimationState<E> event) {
         if (this.random.nextInt(1000) < this.ambientSoundTime && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
             event.getController().forceAnimationReset();
@@ -250,11 +269,41 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new BreedGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
-        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.1D));
-        this.goalSelector.addGoal(3, new RandomSwimmingGoal(this, 1.0D, 10));
-        this.goalSelector.addGoal(11, new RegiusSearchForItemsGoal(this));
+        //this.goalSelector.addGoal(4, new RegiusSeekShelterGoal(this, 1.0D, 5));
+        this.goalSelector.addGoal(2, new RegiusSleepGoal(this));
+        this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.1D));
+        this.goalSelector.addGoal(4, new RandomSwimmingGoal(this, 1.0D, 10));
+        this.goalSelector.addGoal(5, new RegiusSearchForItemsGoal(this));
+
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
+    }
+
+    //Flag stuff
+    private void setFlag(int flagId, boolean value) {
+        if (value) {
+            this.entityData.set(DATA_FLAGS_ID, (byte)((Byte)this.entityData.get(DATA_FLAGS_ID) | flagId));
+        } else {
+            this.entityData.set(DATA_FLAGS_ID, (byte)((Byte)this.entityData.get(DATA_FLAGS_ID) & ~flagId));
+        }
+
+    }
+
+    public void clearStates() {
+        this.setSleeping(false);
+    }
+
+    private boolean getFlag(int flagId) {
+        return ((Byte)this.entityData.get(DATA_FLAGS_ID) & flagId) != 0;
+    }
+
+    public void setSleeping(boolean sleeping) {
+        this.setFlag(32, sleeping);
+    }
+
+    //Actually used to tell if the python is curled up
+    public boolean isSleeping() {
+        return this.getFlag(32);
     }
 
     //MOVEMENT
@@ -273,15 +322,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     //ITEM HOLDING
-    //Copied from Fox class
-    private static final Predicate<ItemEntity> ALLOWED_ITEMS;
-    static {
-        ALLOWED_ITEMS = (item) -> !item.hasPickUpDelay() && item.isAlive();
-    }
-    public static Predicate<ItemEntity> getAllowedItems() {
-        return ALLOWED_ITEMS;
-    }
-
     private boolean canEat(ItemStack stack) {
         return stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD) && !this.isSleeping();
     }
