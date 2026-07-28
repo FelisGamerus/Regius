@@ -58,8 +58,6 @@ public class Regius {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        ItemBlockRenderTypes.setRenderLayer(RegiusBlocks.SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
-        ItemBlockRenderTypes.setRenderLayer(RegiusBlocks.DRIED_SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
         registerCompostables();
     }
 
@@ -87,6 +85,8 @@ public class Regius {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+            ItemBlockRenderTypes.setRenderLayer(RegiusBlocks.SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
+            ItemBlockRenderTypes.setRenderLayer(RegiusBlocks.DRIED_SPHAGNUM_MOSS.get(), RenderType.cutoutMipped());
             RegiusItemProperties.addCustomItemProperties();
             EntityRenderers.register(RegiusEntities.BALL_PYTHON.get(), BallPythonRenderer::new);
         }
