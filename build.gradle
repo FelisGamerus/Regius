@@ -145,7 +145,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    //Change these to be like Geckolib and SBL later
+    //Change these to be like Geckolib later
     compileOnly "vazkii.patchouli:Patchouli:1.21.1-92-NEOFORGE:api"
     localRuntime "vazkii.patchouli:Patchouli:1.21.1-92-NEOFORGE"
 
