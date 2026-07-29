@@ -146,8 +146,8 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
     //Change these to be like Geckolib later
-    compileOnly "vazkii.patchouli:Patchouli:1.21.1-92-NEOFORGE:api"
-    localRuntime "vazkii.patchouli:Patchouli:1.21.1-92-NEOFORGE"
+    compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}:api"
+    localRuntime "vazkii.patchouli:Patchouli:${patchouli_version}"
 
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 }
