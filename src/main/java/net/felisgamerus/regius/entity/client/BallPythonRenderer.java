@@ -6,6 +6,7 @@ import net.felisgamerus.regius.entity.custom.BallPythonEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 public class BallPythonRenderer extends GeoEntityRenderer<BallPythonEntity>{
@@ -13,16 +14,18 @@ public class BallPythonRenderer extends GeoEntityRenderer<BallPythonEntity>{
     public BallPythonRenderer(EntityRendererProvider.Context pContext) {
         super(pContext, new BallPythonModel());
 
-        addRenderLayer(new BPHeldItemLayer( this));
+        addRenderLayer(new BPHeldItemLayer<>(this));
     }
 
     @Override
     public void render(BallPythonEntity pEntity, float pEntityYaw, float pPartialTicks, PoseStack pMatrixStack,
                        MultiBufferSource pBuffer, int pPackedLight) {
+        pMatrixStack.pushPose();
         if(pEntity.isBaby()) {
             pMatrixStack.scale(0.5f, 0.5f, 0.5f);
         }
 
         super.render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
+        pMatrixStack.popPose();
     }
 }
