@@ -104,6 +104,36 @@
 				}
 			}
 		},
+		"animation.ballpython.bookImage": {
+			"loop": true,
+			"bones": {
+				"body1": {
+					"rotation": {
+						"vector": [0, -90, 0]
+					}
+				},
+				"body2": {
+					"rotation": {
+						"vector": [0, 90, 0]
+					}
+				},
+				"body3": {
+					"rotation": {
+						"vector": [0, 90, 0]
+					}
+				},
+				"body4": {
+					"rotation": {
+						"vector": [0, -90, 0]
+					}
+				},
+				"tail": {
+					"rotation": {
+						"vector": [0, -90, 0]
+					}
+				}
+			}
+		},
 		"animation.ballpython.ball": {
 			"loop": true,
 			"bones": {
@@ -138,6 +168,121 @@
 				"tail": {
 					"rotation": {
 						"vector": [10.5, 79.5, 19.25]
+					}
+				}
+			}
+		},
+		"animation.ballpython.ballup": {
+			"loop": "hold_on_last_frame",
+			"animation_length": 18.9167,
+			"bones": {
+				"body1": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -12.5, 0]
+						},
+						"1.0": {
+							"vector": [128, 15, 90]
+						}
+					}
+				},
+				"body2": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -32.5, 0]
+						},
+						"1.0": {
+							"vector": [-129.5, 37.125, -143.75]
+						}
+					}
+				},
+				"body3": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 55, 0]
+						},
+						"1.0": {
+							"vector": [-180, 60, 180]
+						}
+					}
+				},
+				"body4": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 62.5, 0]
+						},
+						"1.0": {
+							"vector": [-180, 72.5, 180]
+						}
+					}
+				},
+				"tail": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -37.5, 0]
+						},
+						"1.0": {
+							"vector": [10.5, 79.5, 19.25]
+						}
+					}
+				},
+				"head": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"1.0": {
+							"vector": [-75, 0, 0]
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"1.0": {
+							"vector": [0, -4.5, 0]
+						}
+					}
+				}
+			}
+		},
+		"animation.ballpython.eat": {
+			"loop": "hold_on_last_frame",
+			"animation_length": 18.9167,
+			"bones": {
+				"body1": {
+					"rotation": {
+						"vector": [0, -12.5, 0]
+					}
+				},
+				"body2": {
+					"rotation": {
+						"vector": [0, -32.5, 0]
+					}
+				},
+				"body3": {
+					"rotation": {
+						"vector": [0, 55, 0]
+					}
+				},
+				"body4": {
+					"rotation": {
+						"vector": [0, 62.5, 0]
+					}
+				},
+				"tail": {
+					"rotation": {
+						"vector": [0, -37.5, 0]
+					}
+				},
+				"item": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"2.0": {
+							"vector": [0, 0, 2]
+						}
 					}
 				}
 			}
