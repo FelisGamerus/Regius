@@ -5,7 +5,6 @@ import net.felisgamerus.regius.Config;
 import net.felisgamerus.regius.entity.RegiusEntities;
 import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.felisgamerus.regius.entity.custom.goals.RegiusSearchForItemsGoal;
-import net.felisgamerus.regius.entity.custom.goals.RegiusSeekShelterGoal;
 import net.felisgamerus.regius.entity.custom.goals.RegiusSleepGoal;
 import net.felisgamerus.regius.item.RegiusItems;
 import net.felisgamerus.regius.util.RegiusTags;
@@ -69,7 +68,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
     private int ticksSinceEaten;
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID;
-    private static final int FLAG_SLEEPING = 32;
     private static final Predicate<ItemEntity> ALLOWED_ITEMS;
 
     static {
@@ -87,6 +85,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.ballpython.walk");
     protected static final RawAnimation BALL = RawAnimation.begin().thenLoop("animation.ballpython.ball");
     protected static final RawAnimation TONGUE_FLICK = RawAnimation.begin().thenPlay("animation.ballpython.tongueflick");
+    protected static final RawAnimation EAT = RawAnimation.begin().thenPlay("animation.ballpython.eat");
 
     @Override
     public float getAgeScale() {
@@ -232,7 +231,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     //Tongue
     private <E extends BallPythonEntity> PlayState tonguePredicate(final AnimationState<E> event) {
-        if (this.random.nextInt(1000) < this.ambientSoundTime && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+        //First thing checks that mainhand is empty so no tongue flicking and eating
+        if (this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && this.random.nextInt(1000) < this.ambientSoundTime && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
             event.getController().forceAnimationReset();
 
             event.getController().setAnimation(TONGUE_FLICK);
@@ -271,15 +271,49 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
         //this.goalSelector.addGoal(4, new RegiusSeekShelterGoal(this, 1.0D, 5));
         this.goalSelector.addGoal(2, new RegiusSleepGoal(this));
-        this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.1D));
-        this.goalSelector.addGoal(4, new RandomSwimmingGoal(this, 1.0D, 10));
+        this.goalSelector.addGoal(3, new BallPythonStrollGoal(this, 1.1D));
+        this.goalSelector.addGoal(4, new BallPythonSwimGoal(this, 1.0D, 10));
         this.goalSelector.addGoal(5, new RegiusSearchForItemsGoal(this));
 
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
     }
 
+    class BallPythonStrollGoal extends WaterAvoidingRandomStrollGoal {
+        BallPythonEntity snake;
+        public BallPythonStrollGoal(BallPythonEntity snake, double speedModifier) {
+            super(snake, speedModifier);
+            this.snake = snake;
+        }
+
+        //So it can't move and eat
+        @Override
+        public boolean canUse() {
+            if(snake.canMove()){
+                return super.canUse();
+            } else return false;
+        }
+    }
+
+    class BallPythonSwimGoal extends RandomSwimmingGoal {
+        BallPythonEntity snake;
+        public BallPythonSwimGoal(BallPythonEntity snake, double p_25754_, int p_25755_) {
+            super(snake, p_25754_, p_25755_);
+            this.snake = snake;
+        }
+
+        //So it can't swim and eat
+        @Override
+        public boolean canUse() {
+            if(snake.canMove()){
+                return super.canUse();
+            } else return false;
+        }
+    }
+
     //Flag stuff
+    private final int SLEEPING_FLAG_ID = 1;
+
     private void setFlag(int flagId, boolean value) {
         if (value) {
             this.entityData.set(DATA_FLAGS_ID, (byte)((Byte)this.entityData.get(DATA_FLAGS_ID) | flagId));
@@ -298,12 +332,12 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     public void setSleeping(boolean sleeping) {
-        this.setFlag(32, sleeping);
+        this.setFlag(SLEEPING_FLAG_ID, sleeping);
     }
 
     //Actually used to tell if the python is curled up
     public boolean isSleeping() {
-        return this.getFlag(32);
+        return this.getFlag(SLEEPING_FLAG_ID);
     }
 
     //MOVEMENT
@@ -318,7 +352,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     public boolean canMove() {
-        return !this.isSleeping();
+        //Not curled up, no item in mouth
+        return !isSleeping() && this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty();
     }
 
     //ITEM HOLDING

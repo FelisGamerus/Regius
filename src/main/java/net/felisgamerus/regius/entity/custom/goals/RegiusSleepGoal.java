@@ -46,7 +46,7 @@ public class RegiusSleepGoal extends Goal { //Used to make the python curl up
     }
 
     private boolean canSleep() {
-        if(snake.isInWater()) {
+        if(snake.isInWater() || !snake.getMainHandItem().isEmpty()) {
             return false;
         } else if(this.wakingTimer > 0) {
             this.wakingTimer--;
