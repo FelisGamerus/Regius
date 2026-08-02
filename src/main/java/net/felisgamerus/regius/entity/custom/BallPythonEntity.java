@@ -518,9 +518,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
                             if (!itemstack1.isEmpty()) {
                                 this.setItemSlot(EquipmentSlot.MAINHAND, itemstack1);
                             }
-                        } else if (this.eatingTimer > EATING_TICK_THRESHOLD && this.random.nextFloat() < 0.1F) {
-                            this.playSound(this.getEatingSound(itemstack), 1.0F, 1.0F);
-                            this.level().broadcastEntityEvent(this, (byte)45);
                         }
                     }
                 }
