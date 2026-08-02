@@ -66,7 +66,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     LocusMap ballPythonGenes = new LocusMap();
     static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
-    private int ticksSinceEaten;
+    private int eatingTimer;
+    private final int EATING_TICK_THRESHOLD = 440;
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID;
     private static final Predicate<ItemEntity> ALLOWED_ITEMS;
 
@@ -218,6 +219,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     private <E extends BallPythonEntity> PlayState predicate(final AnimationState<E> event) {
         if(this.isSleeping()) { //Ball anim
             event.getController().setAnimation(BALL);
+        }
+        else if(this.eatingTimer > EATING_TICK_THRESHOLD && !this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) { //Eating anim - checks if threshold is met and food item in mouth
+            event.getController().setAnimation(EAT);
         }
         else if(event.isMoving()) { //Walk anim
             event.getController().setAnimation(WALK);
@@ -500,18 +504,21 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         if (!this.isNoAi() && this.isAlive()) {
             if (!isSleeping()) {
                 //Eating stuff
-                ++this.ticksSinceEaten;
+                if(!this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) {
+                    ++this.eatingTimer;
+                }
+                else {
+                    this.eatingTimer = 0;
+                }
                 ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
                 if(!this.level().isClientSide) {
                     if (this.canEat(itemstack)) {
-                        if (this.ticksSinceEaten > 600) {
+                        if (this.eatingTimer > 600) {
                             ItemStack itemstack1 = itemstack.finishUsingItem(this.level(), this);
                             if (!itemstack1.isEmpty()) {
                                 this.setItemSlot(EquipmentSlot.MAINHAND, itemstack1);
                             }
-
-                            this.ticksSinceEaten = 0;
-                        } else if (this.ticksSinceEaten > 560 && this.random.nextFloat() < 0.1F) {
+                        } else if (this.eatingTimer > EATING_TICK_THRESHOLD && this.random.nextFloat() < 0.1F) {
                             this.playSound(this.getEatingSound(itemstack), 1.0F, 1.0F);
                             this.level().broadcastEntityEvent(this, (byte)45);
                         }
