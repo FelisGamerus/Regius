@@ -66,8 +66,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
 
     LocusMap ballPythonGenes = new LocusMap();
     static ArrayList<String> MORPH_REFERENCE = LocusMap.getLociArray();
-    private int eatingTimer;
-    private final int EATING_TICK_THRESHOLD = 440;
+    private int eatingTimer = 0;
+    private final int EATING_TIME_IN_TICKS = 400;
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID;
     private static final Predicate<ItemEntity> ALLOWED_ITEMS;
 
@@ -220,7 +220,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         if(this.isSleeping()) { //Ball anim
             event.getController().setAnimation(BALL);
         }
-        else if(this.eatingTimer > EATING_TICK_THRESHOLD && !this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) { //Eating anim - checks if threshold is met and food item in mouth
+        else if(this.eatingTimer > (EATING_TIME_IN_TICKS - 160) && !this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) { //Eating anim - checks if threshold is met and food item in mouth
             event.getController().setAnimation(EAT);
         }
         else if(event.isMoving()) { //Walk anim
@@ -271,21 +271,37 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     //GOALS
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new BreedGoal(this, 1.2D));
+        this.goalSelector.addGoal(0, new RegiusBreedGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, false));
-        //this.goalSelector.addGoal(4, new RegiusSeekShelterGoal(this, 1.0D, 5));
         this.goalSelector.addGoal(2, new RegiusSleepGoal(this));
-        this.goalSelector.addGoal(3, new BallPythonStrollGoal(this, 1.1D));
-        this.goalSelector.addGoal(4, new BallPythonSwimGoal(this, 1.0D, 10));
+        this.goalSelector.addGoal(3, new RegiusStrollGoal(this, 1.1D));
+        this.goalSelector.addGoal(4, new RegiusSwimGoal(this, 1.0D, 10));
         this.goalSelector.addGoal(5, new RegiusSearchForItemsGoal(this));
 
-        this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
+        this.targetSelector.addGoal(1, new RegiusNearestAttackTargetGoal(this, Rabbit.class, 10, true, true, (Predicate<LivingEntity>)null)); //Make these not hardcoded later
+        this.targetSelector.addGoal(1, new RegiusNearestAttackTargetGoal(this, Chicken.class, 10, true, true, (Predicate<LivingEntity>)null));
     }
 
-    class BallPythonStrollGoal extends WaterAvoidingRandomStrollGoal {
+    class RegiusBreedGoal extends BreedGoal {
         BallPythonEntity snake;
-        public BallPythonStrollGoal(BallPythonEntity snake, double speedModifier) {
+        public RegiusBreedGoal(BallPythonEntity snake, double speedModifier) {
+            super(snake, speedModifier);
+            this.snake = snake;
+        }
+
+        public void start() {
+            ItemStack stack = snake.getItemBySlot(EquipmentSlot.MAINHAND);
+            if(!stack.isEmpty()) { //If holding item, spit it out
+                snake.spitOutItem(stack);
+            }
+            super.start();
+        }
+    }
+
+    //Extending goals that I don't want used while the snake is eating
+    class RegiusStrollGoal extends WaterAvoidingRandomStrollGoal {
+        BallPythonEntity snake;
+        public RegiusStrollGoal(BallPythonEntity snake, double speedModifier) {
             super(snake, speedModifier);
             this.snake = snake;
         }
@@ -299,14 +315,30 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         }
     }
 
-    class BallPythonSwimGoal extends RandomSwimmingGoal {
+    class RegiusSwimGoal extends RandomSwimmingGoal {
         BallPythonEntity snake;
-        public BallPythonSwimGoal(BallPythonEntity snake, double p_25754_, int p_25755_) {
+        public RegiusSwimGoal(BallPythonEntity snake, double p_25754_, int p_25755_) {
             super(snake, p_25754_, p_25755_);
             this.snake = snake;
         }
 
         //So it can't swim and eat
+        @Override
+        public boolean canUse() {
+            if(snake.canMove()){
+                return super.canUse();
+            } else return false;
+        }
+    }
+
+    class RegiusNearestAttackTargetGoal extends NearestAttackableTargetGoal {
+        BallPythonEntity snake;
+        public RegiusNearestAttackTargetGoal(BallPythonEntity snake, Class targetType, int randomInterval, boolean mustSee, boolean mustReach, @Nullable Predicate targetPredicate) {
+            super(snake, targetType, randomInterval, mustSee, mustReach, targetPredicate);
+            this.snake = snake;
+        }
+
+        //So it can't hunt and eat
         @Override
         public boolean canUse() {
             if(snake.canMove()){
@@ -365,11 +397,6 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         return stack.is(RegiusTags.Items.BALL_PYTHON_GENERAL_FOOD) && !this.isSleeping();
     }
 
-    public boolean hasEmptyInventory() {
-        ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
-        return itemstack.isEmpty();
-    }
-
     public boolean canTakeItem(ItemStack itemstack) {
         EquipmentSlot equipmentslot = this.getEquipmentSlotForItem(itemstack);
         return !this.getItemBySlot(equipmentslot).isEmpty() ? false : equipmentslot == EquipmentSlot.MAINHAND && super.canTakeItem(itemstack);
@@ -383,6 +410,17 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     private void dropItemStack(ItemStack stack) {
         ItemEntity itementity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(), stack);
         this.level().addFreshEntity(itementity);
+    }
+
+    private void spitOutItem(ItemStack stack) {
+        if (!stack.isEmpty() && !this.level().isClientSide) {
+            ItemEntity itementity = new ItemEntity(this.level(), this.getX() + this.getLookAngle().x, this.getY() + (double)1.0F, this.getZ() + this.getLookAngle().z, stack);
+            itementity.setPickUpDelay(40);
+            itementity.setThrower(this);
+            this.playSound(SoundEvents.FOX_SPIT, 1.0F, 1.0F);
+            this.level().addFreshEntity(itementity);
+            this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        }
     }
 
     protected void pickUpItem(ItemEntity itemEntity) {
@@ -513,7 +551,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
                 ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
                 if(!this.level().isClientSide) {
                     if (this.canEat(itemstack)) {
-                        if (this.eatingTimer > 600) {
+                        if (this.eatingTimer > EATING_TIME_IN_TICKS) {
                             ItemStack itemstack1 = itemstack.finishUsingItem(this.level(), this);
                             if (!itemstack1.isEmpty()) {
                                 this.setItemSlot(EquipmentSlot.MAINHAND, itemstack1);
