@@ -34,6 +34,7 @@ import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -269,6 +270,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     }
 
     //GOALS
+    //TODO: Weird bug where BP sometimes can't pathfind to food - sometimes tries and stops, sometimes doesn't try at all. Poss. related to attack target goal
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new RegiusBreedGoal(this, 1.2D));
@@ -290,10 +292,7 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         }
 
         public void start() {
-            ItemStack stack = snake.getItemBySlot(EquipmentSlot.MAINHAND);
-            if(!stack.isEmpty()) { //If holding item, spit it out
-                snake.spitOutItem(stack);
-            }
+            snake.spitOutItem();
             super.start();
         }
     }
@@ -412,9 +411,10 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         this.level().addFreshEntity(itementity);
     }
 
-    private void spitOutItem(ItemStack stack) {
-        if (!stack.isEmpty() && !this.level().isClientSide) {
-            ItemEntity itementity = new ItemEntity(this.level(), this.getX() + this.getLookAngle().x, this.getY() + (double)1.0F, this.getZ() + this.getLookAngle().z, stack);
+    private void spitOutItem() {
+        ItemStack item = this.getItemBySlot(EquipmentSlot.MAINHAND);
+        if (!item.isEmpty() && !this.level().isClientSide) {
+            ItemEntity itementity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(), item);
             itementity.setPickUpDelay(40);
             itementity.setThrower(this);
             this.playSound(SoundEvents.FOX_SPIT, 1.0F, 1.0F);
@@ -486,7 +486,11 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     //INTERACTIONS
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        return DryBucketable.bucketMobPickup(player, hand, this).orElse(super.mobInteract(player, hand));
+        if(player.getItemInHand(hand).getItem() == Items.BUCKET) {
+            this.spitOutItem();
+            return DryBucketable.bucketMobPickup(player, hand, this).orElse(super.mobInteract(player, hand));
+        }
+        return super.mobInteract(player, hand);
     }
 
     //MULTIPARTS
