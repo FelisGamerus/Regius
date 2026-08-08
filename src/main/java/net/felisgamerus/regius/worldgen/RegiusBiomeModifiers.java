@@ -18,7 +18,8 @@ import java.util.List;
 
 public class RegiusBiomeModifiers {
 
-    public static final ResourceKey<BiomeModifier> SPAWN_BALL_PYTHON = registerKey("spawn_ball_python");
+    //BP edited out because idk how to do biome tags this way
+    //public static final ResourceKey<BiomeModifier> SPAWN_BALL_PYTHON = registerKey("spawn_ball_python");
 
     public static final ResourceKey<BiomeModifier> ADD_SPHAGNUM_MOSS = registerKey("add_sphagnum_moss");
 
@@ -26,9 +27,9 @@ public class RegiusBiomeModifiers {
         var placedFeatures = context.lookup(Registries.PLACED_FEATURE);
         var biomes = context.lookup(Registries.BIOME);
 
-        context.register(SPAWN_BALL_PYTHON, new BiomeModifiers.AddSpawnsBiomeModifier(
+        /*context.register(SPAWN_BALL_PYTHON, new BiomeModifiers.AddSpawnsBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SAVANNA)),
-                List.of(new MobSpawnSettings.SpawnerData(RegiusEntities.BALL_PYTHON.get(), 20, 1, 1))));
+                List.of(new MobSpawnSettings.SpawnerData(RegiusEntities.BALL_PYTHON.get(), 20, 1, 1))));*/
 
         context.register(ADD_SPHAGNUM_MOSS, new BiomeModifiers.AddFeaturesBiomeModifier(
                 HolderSet.direct(biomes.getOrThrow(Biomes.SWAMP)),
