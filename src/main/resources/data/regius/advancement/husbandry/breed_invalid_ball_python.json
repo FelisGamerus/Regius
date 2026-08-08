@@ -1,0 +1,44 @@
+{
+  "parent": "regius:husbandry/get_ball_python_morph",
+  "criteria": {
+    "invalid": {
+      "conditions": {
+        "child": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "regius:ball_python",
+              "nbt": "{Invalid:1b}"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:bred_animals"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "regius.advancements.breed_invalid_ball_python.description"
+    },
+    "hidden": true,
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "regius:ball_python_bucket"
+      }
+    },
+    "title": {
+      "translate": "regius.advancements.breed_invalid_ball_python.title"
+    }
+  },
+  "requirements": [
+    [
+      "invalid"
+    ]
+  ],
+  "rewards": {
+    "experience": 500
+  },
+  "sends_telemetry_event": true
+}

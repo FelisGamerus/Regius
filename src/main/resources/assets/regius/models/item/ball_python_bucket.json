@@ -15,6 +15,12 @@
         "regius:bucket_phenotype": 1
       },
       "model": "regius:item/ball_python_bucket_albino"
+    },
+    {
+      "predicate": {
+        "regius:bucket_phenotype": 99
+      },
+      "model": "regius:item/ball_python_bucket_invalid"
     }
   ]
 }

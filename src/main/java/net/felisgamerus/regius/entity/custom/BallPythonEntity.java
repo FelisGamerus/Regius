@@ -131,6 +131,8 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> GENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> PHENOTYPE = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> HAS_MORPH = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> INVALID = SynchedEntityData.defineId(BallPythonEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -139,6 +141,11 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         builder.define(GENOTYPE, "normal");
         builder.define(PHENOTYPE, 0);
         builder.define(DATA_FLAGS_ID, (byte)0);
+
+        //TODO: See if there's a non-nbt way to handle this
+        //Needed for achievements
+        builder.define(HAS_MORPH, false);
+        builder.define(INVALID, false);
     }
 
     @Override
@@ -146,6 +153,9 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putBoolean("FromBucket", this.fromBucket());
         compoundTag.putString("Genotype", this.getGenotype());
+
+        compoundTag.putBoolean("HasMorph", this.getHasMorph());
+        compoundTag.putBoolean("Invalid", this.getInvalid());
     }
 
     @Override
@@ -168,18 +178,37 @@ public class BallPythonEntity extends Animal implements GeoEntity, DryBucketable
         this.entityData.set(FROM_BUCKET, pFromBucket);
     }
 
-    //Genotype
+    //Genotype + genotype-based achievement flag setting
     public void setGenotype(String genotype) {
         this.setGenes(createGenesFromGenotype(genotype));
-        if (!(getGenotypeString(this.ballPythonGenes).equals("normal"))) {
+        String actualGenotype = getGenotypeString(this.ballPythonGenes);
+        if (!actualGenotype.equals("normal")) {
             this.entityData.set(GENOTYPE, genotype);
+            this.entityData.set(HAS_MORPH, true);
+            if(LocusMap.isInvalid(convertGenotypeToPhenotype(actualGenotype))) { //Checks for invalid-ness
+                this.entityData.set(INVALID, true);
+            }
+            else {
+                this.entityData.set(INVALID, false);
+            }
         } else {
             this.entityData.set(GENOTYPE, "normal");
+            this.entityData.set(HAS_MORPH, false);
+            this.entityData.set(INVALID, false);
         }
     }
 
     public String getGenotype () {
         return this.entityData.get(GENOTYPE);
+    }
+
+    //Genotype-based achievement flag getters
+    //HasMorph
+    public boolean getHasMorph() {
+        return this.entityData.get(HAS_MORPH);
+    }
+    public boolean getInvalid() {
+        return this.entityData.get(INVALID);
     }
 
     //Needed for BallPythonBucketItem

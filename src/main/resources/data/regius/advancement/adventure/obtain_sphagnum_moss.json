@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:adventure/sleep_in_bed",
+  "criteria": {
+    "sphagnum_moss": {
+      "conditions": {
+        "items": [
+          {
+            "items": "regius:sphagnum_moss"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "regius.advancements.obtain_sphagnum_moss.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "regius:sphagnum_moss"
+    },
+    "title": {
+      "translate": "regius.advancements.obtain_sphagnum_moss.title"
+    }
+  },
+  "requirements": [
+    [
+      "sphagnum_moss"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

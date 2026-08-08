@@ -1,0 +1,42 @@
+{
+  "parent": "regius:husbandry/breed_ball_pythons",
+  "criteria": {
+    "get_morph": {
+      "conditions": {
+        "item": [
+          {
+            "items": "minecraft:bucket"
+          }
+        ],
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "regius:ball_python",
+              "nbt": "{HasMorph:1b}"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:player_interacted_with_entity"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "regius.advancements.get_ball_python_morph.description"
+    },
+    "icon": {
+      "id": "regius:ball_python_bucket"
+    },
+    "title": {
+      "translate": "regius.advancements.get_ball_python_morph.title"
+    }
+  },
+  "requirements": [
+    [
+      "get_morph"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

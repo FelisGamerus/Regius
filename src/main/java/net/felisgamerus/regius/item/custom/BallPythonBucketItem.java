@@ -2,6 +2,7 @@ package net.felisgamerus.regius.item.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.felisgamerus.regius.entity.custom.BallPythonEntity;
+import net.felisgamerus.regius.entity.custom.genetics.LocusMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -153,12 +154,17 @@ public class BallPythonBucketItem extends BucketItem {
         if (optional.isPresent()) {
             BallPythonEntity.GenotypeRecord genotypeRecord = (BallPythonEntity.GenotypeRecord)optional.get();
             String phenotype = genotypeRecord.getPhenotype(genotypeRecord.getGenotype());
-            ArrayList<String> morphList = new ArrayList<>(Arrays.asList(phenotype.split("_")));
-            Collections.sort(morphList);
-            for (int i = 0; i < morphList.size(); i++) {
-                String morph = morphList.get(i);
-                if (morph.equals("albino")) {
-                    return 1f;
+            if(LocusMap.isInvalid(phenotype)) { //Invalid
+                return 99f;
+            }
+            else {
+                ArrayList<String> morphList = new ArrayList<>(Arrays.asList(phenotype.split("_")));
+                Collections.sort(morphList);
+                for (int i = 0; i < morphList.size(); i++) {
+                    String morph = morphList.get(i);
+                    if (morph.equals("albino")) {
+                        return 1f;
+                    }
                 }
             }
         }
